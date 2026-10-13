@@ -1,15 +1,15 @@
 # Sistema Django 2.0
 
-Nova versão do sistema de Vigilância Sanitária, em desenvolvimento. O trabalho atual está na etapa de ajustes do frontend.
+Sistema de Vigilância Sanitária com cadastros, agenda, denúncias, REDESIM, termos, notificações e exportação consolidada.
 
 ## Executar no Windows (PowerShell)
 
-O ambiente conferido neste computador usa Python 3.14.7. As versões das dependências estão fixadas em `requirements.txt`.
+Use Python compatível com a versão do Django instalada. As versões das dependências estão fixadas em `requirements.txt`; para aproveitar o ambiente existente neste computador, utilize `venv\Scripts\python.exe`.
 
 ```powershell
 git clone https://github.com/joaocos74/sistema_django2.0.git
 cd sistema_django2.0
-py -3.14 -m venv .venv
+py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe manage.py migrate
 .\.venv\Scripts\python.exe manage.py createsuperuser
@@ -28,9 +28,9 @@ $env:DJANGO_DEBUG = 'true'
 $env:DJANGO_ALLOWED_HOSTS = 'localhost,127.0.0.1'
 ```
 
-As configurações são lidas das variáveis de ambiente; arquivos `.env` não são carregados automaticamente. Publicar o código no GitHub não coloca o sistema em produção. Uma implantação requer configuração própria, incluindo `DJANGO_DEBUG=false` e uma chave privada.
+As configurações são lidas do arquivo `.env` e das variáveis de ambiente, que têm precedência. Use `.env.example` como modelo. Publicar o código no GitHub não coloca o sistema em produção. Uma implantação requer configuração própria, incluindo `DJANGO_DEBUG=false` e uma chave privada.
 
-O banco `db.sqlite3` e os documentos em `media/` ficam somente no computador e não são enviados ao GitHub. Faça backup separado desses dois itens para preservar cadastros, usuários e anexos. As migrações ficam versionadas para criar um banco vazio em outro ambiente.
+Para usar PostgreSQL, configure `DB_ENGINE=postgresql` no `.env`. O procedimento de transferência com backup está em [docs/POSTGRESQL.md](docs/POSTGRESQL.md). PostgreSQL é o padrão. SQLite só é usado com DB_ENGINE=sqlite explícito. Para iniciar zerado, execute apenas migrate, sem importar dados. Preserve também `media/` e `arquivos_privados/`, que contêm os anexos. Bancos, backups e credenciais não são versionados.
 
 ## Estrutura
 
@@ -40,6 +40,9 @@ O banco `db.sqlite3` e os documentos em `media/` ficam somente no computador e n
 - `usuarios/`: autenticação e gestão de usuários.
 - `redesim/`: pesquisa de cadastros por CNPJ/CPF, lançamento de liberações e exportação do histórico.
 - `denuncias/`: registro, consulta, atribuição de fiscal e acompanhamento de denúncias.
+- `termos/`: Auto Termo, padrões, emissão sequencial e histórico de notificações.
+- `arquivos/`: armazenamento de arquivos gerais sem vínculo cadastral.
+- `register/tests/` e `termos/tests/`: testes organizados por funcionalidade; as demais apps mantêm seus testes em `tests.py`.
 
 ## Redesim e Denúncias
 
@@ -76,8 +79,7 @@ Em Estatísticas, os blocos de Denúncias e Redesim usam os filtros de ano e fis
 integram o PDF consolidado. Denúncias usam a data da denúncia (ou a data de criação
 quando ausente), o fiscal designado e o status atual. Incluem locais sem cadastro.
 Redesim usa a data de liberação, o usuário que lançou e a classificação guardada no
-histórico. Conta estabelecimentos distintos e lançamentos separadamente. Um mesmo
-local pode aparecer em vários grupos; a soma dos grupos não é o total anual distinto.
+histórico. A métrica Liberados conta cada lançamento de liberação uma vez.
 Lançamentos Redesim sem data de liberação não entram nas estatísticas anuais.
 
 Templates, CSS e JavaScript permanecem dentro de seus respectivos aplicativos.
@@ -87,6 +89,7 @@ Templates, CSS e JavaScript permanecem dentro de seus respectivos aplicativos.
 ```powershell
 .\.venv\Scripts\python.exe manage.py check
 .\.venv\Scripts\python.exe manage.py makemigrations --check --dry-run
+.\.venv\Scripts\python.exe manage.py test
 ```
 
-O arquivo `sistema_django_visa-main.zip` é a referência da versão anterior e não integra este repositório. Após salvar esta base no GitHub, retomar a comparação com essa referência e os ajustes de frontend. A organização inicial não altera telas nem regras de negócio.
+O arquivo `sistema_django_visa-main.zip` é a referência da versão anterior e não integra este repositório. Os testes automatizados usam um banco separado e não são executados durante o uso normal do sistema.

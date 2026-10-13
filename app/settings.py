@@ -12,9 +12,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env', override=False)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -58,6 +60,8 @@ INSTALLED_APPS = [
     'usuarios.apps.UsuariosConfig',
     'redesim.apps.RedesimConfig',
     'denuncias.apps.DenunciasConfig',
+    'arquivos.apps.ArquivosConfig',
+    'termos.apps.TermosConfig',
 ]
 
 MIDDLEWARE = [
@@ -93,12 +97,9 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+from .database import database_config
+
+DATABASES = {'default': database_config(BASE_DIR)}
 
 
 # Password validation
@@ -140,3 +141,6 @@ STATIC_URL = 'static/'
 LOGIN_URL = 'usuarios:login'
 LOGIN_REDIRECT_URL = 'home:index'
 LOGOUT_REDIRECT_URL = 'usuarios:login'
+
+ARQUIVOS_ROOT = BASE_DIR / 'arquivos_privados'
+ARQUIVOS_MAX_BYTES = 25 * 1024 * 1024

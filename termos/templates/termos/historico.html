@@ -1,0 +1,19 @@
+{% extends 'register/base.html' %}
+{% block title %}Notificações — {{ estabelecimento.nome_fantasia }}{% endblock %}
+{% block heading %}NOTIFICAÇÕES GERADAS{% endblock %}
+{% block actions %}
+<a class="btn btn-secundary" href="{% url 'register_view:analisar' estabelecimento.pk %}">Voltar</a>
+<a class="btn btn-primary" href="{% url 'termos:notificacao' estabelecimento.pk %}">Nova notificação</a>
+{% endblock %}
+{% block content %}
+<section class="card"><header class="card__header"><h2>{{ estabelecimento.nome_fantasia }}</h2></header>
+<div class="card__body table-wrapper"><table class="table">
+<thead><tr><th>Número</th><th>Gerada em</th><th>Gerada por</th><th>Documento</th></tr></thead>
+<tbody>{% for item in pagina %}<tr><td>{{ item.numero_formatado }}</td><td>{{ item.gerado_em|date:'d/m/Y H:i' }}</td><td>{{ item.gerado_por.get_full_name|default:item.gerado_por.username }}</td><td><a href="{% url 'termos:emitida' item.pk %}">Abrir / imprimir</a></td></tr>
+{% empty %}<tr><td colspan="4">Nenhuma notificação gerada.</td></tr>{% endfor %}</tbody></table>
+{% if pagina.has_other_pages %}<nav class="pagination" aria-label="Páginas das notificações">
+{% if pagina.has_previous %}<a href="?page={{ pagina.previous_page_number }}">Anterior</a>{% endif %}
+<span>{{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+{% if pagina.has_next %}<a href="?page={{ pagina.next_page_number }}">Próxima</a>{% endif %}
+</nav>{% endif %}</div></section>
+{% endblock %}

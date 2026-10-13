@@ -3,7 +3,9 @@
 {% block title %}Analisar — {{ estabelecimento.nome_fantasia }}{% endblock %}
 {% block actions %}
 <a href="{% url 'register_view:pesquisar' %}" class="btn btn-secundary">Voltar</a>
-<button type="button" class="btn btn-tertiary" id="imprimir">Imprimir</button>
+<a href="{% url 'termos:auto_termo' estabelecimento.pk %}" target="_blank" rel="noopener" class="btn btn-tertiary">Auto Termo</a>
+<a href="{% url 'termos:notificacao' estabelecimento.pk %}" target="_blank" rel="noopener" class="btn btn-tertiary">Notificação</a>
+<a href="{% url 'termos:historico' estabelecimento.pk %}" class="btn btn-tertiary">Notificações geradas</a>
 {% if pode_editar %}<button type="submit" form="form-editar" class="btn btn-primary">Salvar</button>{% endif %}
 {% endblock %}
 {% block content %}

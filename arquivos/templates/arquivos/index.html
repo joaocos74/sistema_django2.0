@@ -1,0 +1,53 @@
+{% extends 'register/base.html' %}
+{% load static %}
+{% block title %}Arquivos gerais — Vigilância Sanitária{% endblock %}
+{% block heading %}ARQUIVOS GERAIS{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'arquivos/arquivos.css' %}">{% endblock %}
+{% block content %}
+<div class="arquivos-page">
+<section class="card arquivos-upload">
+    <header class="card__header"><h2><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Adicionar arquivo</h2></header>
+    <div class="card__body">
+        <p>Armazene documentos, planilhas, imagens e outros arquivos de uso geral.</p>
+        <form method="post" enctype="multipart/form-data" class="document-upload">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="form-grid-2">
+                {% for field in form %}<div class="form-group arquivos-campo--{{ field.name }}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                    {{ field }}{{ field.errors }}
+                </div>{% endfor %}
+            </div>
+            <div class="arquivos-upload-actions"><p>Tamanho máximo por arquivo: {{ limite|filesizeformat }}.</p>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Adicionar arquivo</button></div>
+        </form>
+    </div>
+</section>
+<section class="card arquivos-historico">
+    <header class="card__header"><h2><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Histórico de adições</h2><span class="arquivos-contagem">{{ pagina.paginator.count }} arquivo{{ pagina.paginator.count|pluralize }}</span></header>
+    <div class="card__body">
+        <form method="get" class="arquivos-pesquisa" role="search">
+            <div class="form-group"><label for="busca-arquivos">Pesquisar arquivos</label>
+                <input type="search" class="form-control" id="busca-arquivos" name="q" value="{{ busca }}" placeholder="Busque pelo nome, descrição ou nome do arquivo">
+            </div>
+            <div class="arquivos-pesquisa-actions"><button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Pesquisar</button> <a class="btn btn-secundary" href="{% url 'arquivos:index' %}">Limpar</a></div>
+        </form>
+        {% if busca %}<p class="arquivos-resultado">Resultados para “{{ busca }}”.</p>{% endif %}
+        <div class="table-wrapper"><table class="table">
+            <thead><tr><th>Nome</th><th>Descrição</th><th>Enviado por</th><th>Data e hora</th><th>Arquivo</th><th>Tamanho</th><th>Ação</th></tr></thead>
+            <tbody>{% for item in pagina %}<tr>
+                <td><strong>{{ item.nome }}</strong></td><td class="arquivos-descricao">{{ item.descricao|default:'—'|linebreaksbr }}</td>
+                <td>{{ item.enviado_por.get_full_name|default:item.enviado_por.username }}</td>
+                <td>{{ item.data_envio|date:'d/m/Y H:i' }}</td><td>{{ item.nome_original }}</td>
+                <td>{{ item.tamanho|filesizeformat }}</td><td><a class="arquivos-download" href="{% url 'arquivos:baixar' item.pk %}" aria-label="Baixar {{ item.nome }}"><i class="fa-solid fa-download" aria-hidden="true"></i> Baixar</a></td>
+            </tr>{% empty %}<tr><td colspan="7" class="arquivos-vazio"><i class="fa-regular fa-folder-open" aria-hidden="true"></i><strong>Nenhum arquivo encontrado.</strong><span>{% if busca %}Tente outro termo ou limpe a pesquisa.{% else %}Adicione o primeiro arquivo usando o formulário acima.{% endif %}</span></td></tr>{% endfor %}</tbody>
+        </table></div>
+        {% if pagina.has_other_pages %}<nav class="pagination" aria-label="Páginas do histórico">
+            {% if pagina.has_previous %}<a href="?q={{ busca|urlencode }}&page={{ pagina.previous_page_number }}">Anterior</a>{% endif %}
+            <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+            {% if pagina.has_next %}<a href="?q={{ busca|urlencode }}&page={{ pagina.next_page_number }}">Próxima</a>{% endif %}
+        </nav>{% endif %}
+    </div>
+</section>
+</div>
+{% endblock %}

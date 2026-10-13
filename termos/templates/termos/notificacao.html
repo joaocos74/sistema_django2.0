@@ -1,0 +1,189 @@
+{% extends 'register/base.html' %}
+{% load static %}
+{% block title %}Notificação — {{ estabelecimento.nome_fantasia }}{% endblock %}
+{% block heading %}NOTIFICAÇÃO{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'termos/css/auto_termo.css' %}?v=7"><link rel="stylesheet" href="{% static 'termos/css/notificacao.css' %}?v=3">{% endblock %}
+{% block actions %}
+    <a class="btn btn-secundary" href="{% url 'register_view:analisar' estabelecimento.pk %}">Voltar</a>
+    {% if not emitida %}<button type="button" class="btn btn-tertiary" id="adicionar-autoridade">+ Autoridade Sanitária</button>{% endif %}
+    {% if emitida %}<button type="button" class="btn btn-primary" id="imprimir-auto">Imprimir</button>{% endif %}
+    {% if pode_salvar_padrao %}<button type="button" class="btn btn-primary" id="salvar-padrao" data-gerar="true">Gerar</button>{% endif %}
+    <a class="btn btn-tertiary" href="{% url 'termos:historico' estabelecimento.pk %}">Histórico</a>
+{% endblock %}
+{% block content %}
+<p class="document-help">{% if emitida %}Notificação {{ numero_notificacao }} gerada em {{ emitida.gerado_em|date:'d/m/Y H:i' }}. Este documento preserva os dados da emissão.{% else %}Confira os campos e a data. O número mostrado é uma prévia: só é reservado ao clicar em Gerar. Se outra pessoa gerar antes, será atribuído o próximo número disponível. As edições também serão lembradas para a próxima notificação deste estabelecimento.{% endif %}</p>
+<p class="document-help" id="padrao-status" role="status" aria-live="polite"></p>
+<div hidden>{% csrf_token %}{% if emissao_token %}<input name="emissao_token" value="{{ emissao_token }}">{% endif %}</div>
+{{ padrao_salvo|json_script:'padrao-salvo' }}
+<div class="page-wrapper" data-cadastro-id="{{ estabelecimento.pk }}" {% if emitida %}data-emitida="true"{% else %}data-rascunho="true"{% endif %}>
+<div class="page">
+
+    <!-- CABEÇALHO -->
+    <div class="doc-header">
+        <div class="doc-header__logo">
+            <img src="{% static 'register/img/brasao_taiobeiras.png' %}" alt="Brasão">
+        </div>
+        <div class="doc-header__text">
+            <h1>Prefeitura Municipal de Taiobeiras/MG</h1>
+            <h2>Secretaria Municipal de Saúde</h2>
+            <h3>Vigilância Sanitária</h3>
+            <div class="doc-title-row">
+                <h4>NOTIFICAÇÃO</h4>
+                <span class="doc-numero">Nº <span class="field-value">{{ numero_notificacao }}</span></span>
+            </div>
+        </div>
+        <div class="doc-header__logo"><img src="{% static 'register/img/logo.png' %}" alt="Vigilância Sanitária"></div>
+    </div>
+
+    <!-- TABELA PRINCIPAL -->
+    <table class="form-table"><colgroup><col class="section-column"><col span="14"></colgroup>
+        <!-- SRS / Município -->
+        <tr>
+            <td colspan="6"><span class="field-label">02. SRS</span><span contenteditable="true" data-padrao="campo_02" class="field-value">{{ campo_02|default:"" }}</span></td>
+            <td colspan="9"><span class="field-label">03. MUNICÍPIO</span><span contenteditable="true" data-padrao="campo_03" class="field-value">{{ campo_03|default:"" }}</span></td>
+        </tr>
+
+        <!-- ESTABELECIMENTO -->
+        <tr>
+            <td class="section-label" rowspan="6"><span>ESTABELECIMENTO</span></td>
+            <td colspan="14"><span class="field-label">04. NOME</span><span contenteditable="true" data-padrao="campo_04" class="field-value field-value--nome">{{ campo_04|default:""|upper }}</span></td>
+        </tr>
+        <tr>
+            <td colspan="10"><span class="field-label">05. RAZÃO SOCIAL</span><span contenteditable="true" data-padrao="campo_05" class="field-value">{{ campo_05|default:"" }}</span></td>
+            <td colspan="4"><span class="field-label">06. CNPJ</span><span contenteditable="true" data-padrao="campo_06" class="field-value">{{ campo_06|default:"" }}</span></td>
+        </tr>
+        <tr>
+            <td colspan="6"><span class="field-label">07. INSC. MUNICIPAL</span><span contenteditable="true" data-padrao="campo_07" class="field-value">{{ campo_07|default:"" }}</span></td>
+            <td colspan="8"><span class="field-label">08. ATIVIDADE</span><span contenteditable="true" data-padrao="campo_08" class="field-value">{{ campo_08|default:"" }}</span></td>
+        </tr>
+        <tr><td colspan="14"><span class="field-label">09. ENDEREÇO (AV., RUA, Nº, BAIRRO)</span><span contenteditable="true" data-padrao="campo_09" class="field-value">{{ campo_09|default:"" }}</span></td></tr>
+        <tr><td colspan="14"><span class="field-label">E-MAIL</span><span contenteditable="true" data-padrao="campo_email" class="field-value">{{ campo_email|default:"" }}</span></td></tr>
+        <tr>
+            <td colspan="4"><span class="field-label">10. FONE</span><span contenteditable="true" data-padrao="campo_10" class="field-value">{{ campo_10|default:"" }}</span></td>
+            <td colspan="3"><span class="field-label">11. CEP</span><span contenteditable="true" data-padrao="campo_11" class="field-value">{{ campo_11|default:"" }}</span></td>
+            <td colspan="5"><span class="field-label">12. MUNICÍPIO/LOCALIDADE</span><span contenteditable="true" data-padrao="campo_12" class="field-value">{{ campo_12|default:"" }}</span></td>
+            <td colspan="2"><span class="field-label">13. UF</span><span contenteditable="true" data-padrao="campo_13" class="field-value">{{ campo_13|default:"" }}</span></td>
+        </tr>
+
+        <!-- PROPRIETÁRIO -->
+        <tr>
+            <td class="section-label" rowspan="5"><span>PROPRIETÁRIO/<br>RESPONSÁVEL</span></td>
+            <td colspan="9"><span class="field-label">14. NOME</span><span contenteditable="true" data-padrao="campo_14" class="field-value">{{ campo_14|default:"" }}</span></td>
+            <td colspan="5"><span class="field-label">15. NACIONALIDADE</span><span contenteditable="true" data-padrao="campo_15" class="field-value">{{ campo_15|default:"" }}</span></td>
+        </tr>
+        <tr>
+            <td colspan="4"><span class="field-label">16. NATURALIDADE</span><span contenteditable="true" data-padrao="campo_16" class="field-value">{{ campo_16|default:"" }}</span></td>
+            <td colspan="5"><span class="field-label">17. ESTADO CIVIL</span><span contenteditable="true" data-padrao="campo_17" class="field-value">{{ campo_17|default:"" }}</span></td>
+            <td colspan="5"><span class="field-label">18. IDENTIDADE</span><span contenteditable="true" data-padrao="campo_18" class="field-value">{{ campo_18|default:"" }}</span></td>
+        </tr>
+        <tr>
+            <td colspan="9"><span class="field-label">19. PROFISSÃO</span><span contenteditable="true" data-padrao="campo_19" class="field-value">{{ campo_19|default:"" }}</span></td>
+            <td colspan="5"><span class="field-label">20. C.P.F.</span><span contenteditable="true" data-padrao="campo_20" class="field-value">{{ campo_20|default:"" }}</span></td>
+        </tr>
+        <tr><td colspan="14"><span class="field-label">21. ENDEREÇO (AV., RUA, Nº, BAIRRO)</span><span contenteditable="true" data-padrao="campo_21" class="field-value">{{ campo_21|default:"" }}</span></td></tr>
+        <tr>
+            <td colspan="4"><span class="field-label">22. FONE</span><span contenteditable="true" data-padrao="campo_22" class="field-value">{{ campo_22|default:"" }}</span></td>
+            <td colspan="3"><span class="field-label">23. CEP</span><span contenteditable="true" data-padrao="campo_23" class="field-value">{{ campo_23|default:"" }}</span></td>
+            <td colspan="5"><span class="field-label">24. MUNICÍPIO</span><span contenteditable="true" data-padrao="campo_24" class="field-value">{{ campo_24|default:"" }}</span></td>
+            <td colspan="2"><span class="field-label">25. UF</span><span contenteditable="true" data-padrao="campo_25" class="field-value">{{ campo_25|default:"" }}</span></td>
+        </tr>
+
+        <!-- RESPONSÁVEL TÉCNICO -->
+        <tr>
+            <td class="section-label" rowspan="3"><span>RESPONSÁVEL<br>TÉCNICO</span></td>
+            <td colspan="9"><span class="field-label">26. NOME</span><span contenteditable="true" data-padrao="campo_26" class="field-value">{{ campo_26|default:"" }}</span></td>
+            <td colspan="5"><span class="field-label">27. INSCRIÇÃO</span><span contenteditable="true" data-padrao="campo_27" class="field-value">{{ campo_27|default:"" }}</span></td>
+        </tr>
+        <tr><td colspan="14"><span class="field-label">28. ENDEREÇO (AV., RUA, Nº, BAIRRO)</span><span contenteditable="true" data-padrao="campo_28" class="field-value">{{ campo_28|default:"" }}</span></td></tr>
+        <tr>
+            <td colspan="4"><span class="field-label">29. FONE</span><span contenteditable="true" data-padrao="campo_29" class="field-value">{{ campo_29|default:"" }}</span></td>
+            <td colspan="3"><span class="field-label">30. CEP</span><span contenteditable="true" data-padrao="campo_30" class="field-value">{{ campo_30|default:"" }}</span></td>
+            <td colspan="5"><span class="field-label">31. MUNICÍPIO</span><span contenteditable="true" data-padrao="campo_31" class="field-value">{{ campo_31|default:"" }}</span></td>
+            <td colspan="2"><span class="field-label">32. UF</span><span contenteditable="true" data-padrao="campo_32" class="field-value">{{ campo_32|default:"" }}</span></td>
+        </tr>
+    </table>
+
+    <!-- CAMPO 33 - EDITÁVEL -->
+    <table class="section-box"><tr><td>
+        <span class="field-label">33.</span>
+        <textarea class="field-editable" rows="4" name="campo_33" style="width:100%;margin-top:2px;">{{ campo_33|default:"Com base no inciso V do artigo 24 da lei 13.317/99, notifico o estabelecimento acima citado na pessoa do seu responsável Legal/Técnico, que apresente no prazo de até 30 dias, Plano de Trabalho contemplando as propostas de ações corretivas e cronograma de ação para adequação das demais não conformidades descritas no relatório de inspeção de ____________." }}</textarea>
+    </td></tr></table>
+
+    <!-- AUTORIDADES 34-37 -->
+    <table class="auth-table">
+        <thead>
+            <tr>
+                <th style="width:35%;">34. NOME DA AUTORIDADE SANITÁRIA</th>
+                <th style="width:15%;">35. MATRÍCULA</th>
+                <th style="width:20%;">36. CARGO/FUNÇÃO</th>
+                <th style="width:30%;">37. ASSINATURA</th>
+            </tr>
+        </thead>
+        <tbody id="auth-tbody">
+            <tr>
+                <td><span contenteditable="true" data-padrao="campo_34_nome_1" class="field-value">{{ campo_34_nome_1|default:"" }}</span></td>
+                <td><span contenteditable="true" data-padrao="campo_35_matricula_1" class="field-value">{{ campo_35_matricula_1|default:"" }}</span></td>
+                <td><span contenteditable="true" data-padrao="campo_36_cargo_1" class="field-value">{{ campo_36_cargo_1|default:"" }}</span></td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td><span contenteditable="true" data-padrao="campo_34_nome_2" class="field-value">{{ campo_34_nome_2|default:"" }}</span></td>
+                <td><span contenteditable="true" data-padrao="campo_35_matricula_2" class="field-value">{{ campo_35_matricula_2|default:"" }}</span></td>
+                <td><span contenteditable="true" data-padrao="campo_36_cargo_2" class="field-value">{{ campo_36_cargo_2|default:"" }}</span></td>
+                <td>&nbsp;</td>
+            </tr>
+        </tbody><tbody id="extra-authorities"></tbody>
+    </table>
+
+    <!-- CAMPO 38 - DATA/ASSINATURA -->
+    <div class="section-signatures">
+        <span class="field-label" style="display:block;margin-bottom:6px;">38.</span>
+        <div class="date-row">
+            <div class="date-col date-col--data">
+                <div style="display:flex;align-items:baseline;gap:2px;">
+                    <span style="font-size:11px;">Taiobeiras,</span>
+                    <span contenteditable="true" data-padrao="campo_38_dia" class="field-value" style="border-bottom:1px solid #000;min-width:30px;text-align:center;">{{ campo_38_dia|default:"" }}</span><span>/</span>
+                    <span contenteditable="true" data-padrao="campo_38_mes" class="field-value" style="border-bottom:1px solid #000;min-width:30px;text-align:center;">{{ campo_38_mes|default:"" }}</span><span>/</span>
+                    <span contenteditable="true" data-padrao="campo_38_ano" class="field-value" style="border-bottom:1px solid #000;min-width:50px;text-align:center;">{{ campo_38_ano|default:"" }}</span>
+                </div>
+                <span class="sig-label">LOCAL E DATA</span>
+            </div>
+            <div class="date-col date-col--hora"><div class="sig-editable" contenteditable="true" data-padrao="campo_38_hora"></div><span class="sig-label">HORA</span></div>
+            <div class="date-col date-col--sig"><div class="sig-line"></div><span class="sig-label">ASSINATURA DO AUTUADO</span></div>
+        </div>
+    </div>
+
+    <!-- CAMPO 39 - TESTEMUNHAS -->
+    <div class="section-testemunhas">
+        <span class="field-label" style="display:block;margin-bottom:6px;font-size:9px;">39. POR MOTIVO DE RECUSA / AUSÊNCIA DO AUTUADO, ASSINAM AS TESTEMUNHAS:</span>
+        <div class="testemunha-block">
+            <div class="testemunha-row">
+                <span class="label-inline">1 – NOME:</span><span contenteditable="true" data-padrao="testemunha_nome_1" class="line-field"></span>
+                <span class="label-inline">R.G.:</span><span contenteditable="true" data-padrao="testemunha_rg_1" class="line-field" style="flex:0 0 180px;"></span>
+            </div>
+            <div class="testemunha-row">
+                <span class="label-inline">END.:</span><span contenteditable="true" data-padrao="testemunha_endereco_1" class="line-field"></span>
+            </div>
+        </div>
+        <div class="testemunha-block">
+            <div class="testemunha-row">
+                <span class="label-inline">2 – NOME:</span><span contenteditable="true" data-padrao="testemunha_nome_2" class="line-field"></span>
+                <span class="label-inline">R.G.:</span><span contenteditable="true" data-padrao="testemunha_rg_2" class="line-field" style="flex:0 0 180px;"></span>
+            </div>
+            <div class="testemunha-row">
+                <span class="label-inline">END.:</span><span contenteditable="true" data-padrao="testemunha_endereco_2" class="line-field"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RODAPÉ -->
+    <div class="doc-footer">
+        Vigilância Sanitária – Praça 13 de maio, 85 – Centro – Fone: (38) 3845-3970<br>
+        visataiobeiras@gmail.com
+    </div>
+
+</div>
+</div>
+
+{% endblock %}
+{% block scripts %}<script src="{% static 'termos/js/documentos.js' %}?v=4" defer></script>{% endblock %}

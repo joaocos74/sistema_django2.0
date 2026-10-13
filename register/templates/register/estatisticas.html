@@ -5,8 +5,10 @@
 {% block actions %}
 <a href="{% url 'home:index' %}" class="btn btn-secundary">Voltar</a>
 <button type="button" class="btn btn-primary" id="exportar-pdf">Exportar consolidado em PDF</button>
+<a href="{% url 'register_view:exportar_consolidado' %}" class="btn btn-primary">Gerar consolidado em Excel</a>
 {% endblock %}
 {% block content %}
+    <p class="export-instruction">O Excel inclui todos os estabelecimentos e seus históricos, independentemente dos filtros abaixo.</p>
     <p class="export-instruction">Para baixar o consolidado com tabelas e gráficos, clique em exportar e selecione “Salvar como PDF”.</p>
     <div class="report-heading"><h1>Consolidado de estatísticas</h1><p id="report-date"></p></div>
     <!-- 1. MÉTRICAS POR ANO -->

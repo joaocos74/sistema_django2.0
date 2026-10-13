@@ -1,0 +1,12 @@
+.auth-table { margin-top: 6px; }
+[data-rascunho] .page::before { content: 'RASCUNHO — número ainda não reservado'; display: block; text-align: center; color: #795918; font-size: 10px; margin-bottom: 8px; }
+.auth-table th { border: 1px solid #222; padding: 5px; font-size: 8px; text-align: left; }
+.auth-table td { height: 9mm; vertical-align: middle; }
+.section-signatures .date-col--sig .sig-line { min-height: 9mm; }
+.doc-numero { display: flex; justify-content: center; gap: 5px; margin-top: 4px; }
+.doc-numero .field-value { min-width: 70px; border-bottom: 1px solid #222; }
+.section-testemunhas { border: 1px solid #222; padding: 7px; margin-top: 6px; }
+.testemunha-block { margin-top: 10px; break-inside: avoid; }
+.testemunha-row { display: flex; align-items: baseline; gap: 5px; margin-top: 8px; }
+.label-inline { font-size: 9px; white-space: nowrap; }
+.line-field { flex: 1; min-width: 0; min-height: 15px; border-bottom: 1px solid #222; overflow-wrap: anywhere; }

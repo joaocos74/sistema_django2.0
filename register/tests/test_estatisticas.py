@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.utils import timezone
 from denuncias.models import Denuncia
 from redesim.models import RegistroRedesim
-from .models import Estabelecimento
-from .estatisticas_modulos import metricas_modulos, anos_modulos
+from ..models import Estabelecimento
+from ..estatisticas_modulos import metricas_modulos, anos_modulos
 
 
 class EstatisticasModulosTests(TestCase):
@@ -34,10 +34,10 @@ class EstatisticasModulosTests(TestCase):
         total = cards['denuncias']['itens'][0]
         self.assertEqual([total[k] for k in ('total', 'pendente', 'em_andamento', 'concluido', 'produtos', 'servicos')], [3, 1, 1, 1, 2, 1])
 
-    def test_redesim_distintos_snapshot_e_autor_da_liberacao(self):
+    def test_redesim_conta_cada_liberacao(self):
         cards = self.cards()
         total = cards['redesim']['itens'][0]
-        self.assertEqual(total['estabelecimentos'], 1)
+        self.assertEqual(cards['redesim']['headers'], ['Período', 'Liberados'])
         self.assertEqual(total['liberacoes'], 3)
 
     def test_filtro_fiscal_usa_papel_de_cada_modulo(self):
@@ -76,7 +76,6 @@ class EstatisticasModulosTests(TestCase):
         self.assertEqual(len(cards), 2)
         self.assertEqual(cards['denuncias']['itens'][0]['total'], 1)
         self.assertEqual(cards['denuncias']['itens'][0]['servicos'], 1)
-        self.assertEqual(cards['redesim']['itens'][0]['estabelecimentos'], 1)
         self.assertEqual(cards['redesim']['itens'][0]['liberacoes'], 2)
         filtros['denuncias_status'] = 'concluido'
         cards = {c['id']: c for c in metricas_modulos(2025, 'todos', filtros)}

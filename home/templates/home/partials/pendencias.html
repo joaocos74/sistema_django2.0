@@ -1,0 +1,48 @@
+<section class="card pendencias" id="pendencias" aria-labelledby="pendencias-heading">
+    <div class="home-section-header">
+        <h2 class="card-title" id="pendencias-heading">Minhas pendências</h2>
+        <span class="pendencias-periodo">{{ mes_pendencias|date:'F / Y' }}</span>
+    </div>
+    <div class="pendencias-colunas">
+        <section aria-labelledby="inspecoes-heading">
+            <h3 id="inspecoes-heading">Inspeções do mês <span class="pendencias-contagem">{{ inspecoes_pendentes.paginator.count }}</span></h3>
+            <p class="pendencias-ajuda">Inspeções a fazer, previstas para este mês.</p>
+            <ul class="pendencias-lista">
+                {% for item in inspecoes_pendentes %}
+                <li><a href="{% url 'register_view:analisar' item.estabelecimento_id %}">
+                    <span class="pendencias-texto"><strong>{{ item.estabelecimento.nome_fantasia }}</strong>
+                    <small>{{ item.estabelecimento.logradouro }}{% if item.estabelecimento.numero %}, {{ item.estabelecimento.numero }}{% endif %}{% if item.estabelecimento.bairro %} · {{ item.estabelecimento.bairro }}{% endif %}</small></span>
+                    <span class="pendencias-status">A fazer</span>
+                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </a></li>
+                {% empty %}<li class="pendencias-vazio">Nenhuma inspeção a fazer neste mês.</li>{% endfor %}
+            </ul>
+            {% if inspecoes_pendentes.has_other_pages %}
+            <nav class="pendencias-paginacao" aria-label="Páginas das inspeções">
+                {% if inspecoes_pendentes.has_previous %}<a href="{% querystring insp_page=inspecoes_pendentes.previous_page_number %}#pendencias">Anterior</a>{% endif %}
+                <span>{{ inspecoes_pendentes.number }} de {{ inspecoes_pendentes.paginator.num_pages }}</span>
+                {% if inspecoes_pendentes.has_next %}<a href="{% querystring insp_page=inspecoes_pendentes.next_page_number %}#pendencias">Próxima</a>{% endif %}
+            </nav>{% endif %}
+        </section>
+        <section aria-labelledby="denuncias-heading">
+            <h3 id="denuncias-heading">Denúncias <span class="pendencias-contagem">{{ denuncias_pendentes.paginator.count }}</span></h3>
+            <p class="pendencias-ajuda">Pendentes ou em andamento, de qualquer mês.</p>
+            <ul class="pendencias-lista">
+                {% for item in denuncias_pendentes %}
+                <li><a href="{% url 'denuncias:index' %}?editar={{ item.pk }}">
+                    <span class="pendencias-texto"><strong>{{ item.nome_fantasia|default:item.razao_social }}</strong>
+                    <small>#{{ item.pk }} · {{ item.data_denuncia|default:item.data_criacao|date:'d/m/Y' }}{% if item.tipo %} · {{ item.tipo }}{% endif %}</small></span>
+                    <span class="pendencias-status {% if item.status == 'em_andamento' %}pendencias-status--andamento{% endif %}">{% if item.status == 'pendente' %}A fazer{% else %}Em andamento{% endif %}</span>
+                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </a></li>
+                {% empty %}<li class="pendencias-vazio">Nenhuma denúncia pendente para você.</li>{% endfor %}
+            </ul>
+            {% if denuncias_pendentes.has_other_pages %}
+            <nav class="pendencias-paginacao" aria-label="Páginas das denúncias">
+                {% if denuncias_pendentes.has_previous %}<a href="{% querystring den_page=denuncias_pendentes.previous_page_number %}#pendencias">Anterior</a>{% endif %}
+                <span>{{ denuncias_pendentes.number }} de {{ denuncias_pendentes.paginator.num_pages }}</span>
+                {% if denuncias_pendentes.has_next %}<a href="{% querystring den_page=denuncias_pendentes.next_page_number %}#pendencias">Próxima</a>{% endif %}
+            </nav>{% endif %}
+        </section>
+    </div>
+</section>

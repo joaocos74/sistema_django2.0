@@ -345,4 +345,29 @@ body {
 .board--mini { scrollbar-width: thin; }
 a:focus-visible, button:focus-visible, .board--mini:focus-visible, input:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 3px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.pendencias-periodo { color: var(--muted-text); font-size: 12px; text-transform: capitalize; }
+.pendencias-colunas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.pendencias-colunas > section + section { border-left: 1px solid #e7ebee; padding-left: 24px; }
+.pendencias h3 { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.pendencias-contagem { padding: 2px 8px; border-radius: 12px; background: #eef3f0; color: #385b46; font-size: 12px; }
+.pendencias-ajuda { margin: 6px 0 12px; font-size: 12px; color: var(--muted-text); }
+.pendencias-lista { list-style: none; }
+.pendencias-lista li + li { border-top: 1px solid #eef0f2; }
+.pendencias-lista a { display: flex; align-items: center; gap: 10px; min-height: 64px; padding: 10px 4px; text-decoration: none; color: var(--text-color); border-radius: 4px; }
+.pendencias-lista a:hover { background: #f6f9f7; }
+.pendencias-texto { flex: 1; min-width: 0; }
+.pendencias-texto strong, .pendencias-texto small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pendencias-texto strong { font-size: 13px; font-weight: 600; }
+.pendencias-texto small { font-size: 11px; color: var(--muted-text); margin-top: 4px; }
+.pendencias-status { font-size: 10px; color: #795918; background: #fbf5e8; border-radius: 4px; padding: 4px 6px; white-space: nowrap; }
+.pendencias-status--andamento { color: #315e86; background: #edf4fb; }
+.pendencias-lista i { font-size: 10px; color: #8c9690; }
+.pendencias-vazio { padding: 22px 0; font-size: 13px; color: var(--muted-text); }
+.pendencias-paginacao { display: flex; align-items: center; justify-content: end; gap: 14px; margin-top: 12px; font-size: 12px; }
+.pendencias-paginacao a { color: var(--primary-color-hover); padding: 5px 0; }
+.pendencias-paginacao span { color: var(--muted-text); }
+@media (max-width: 768px) {
+    .pendencias-colunas { grid-template-columns: 1fr; }
+    .pendencias-colunas > section + section { border-left: 0; border-top: 1px solid #e7ebee; padding: 20px 0 0; }
+}
 @media (max-width: 768px) { .navbar-user { margin-left: 0; } .navbar-search { flex-basis: 100%; } .card { padding: 16px; } }

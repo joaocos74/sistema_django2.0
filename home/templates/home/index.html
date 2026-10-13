@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Início — Vigilância Sanitária</title>
-<link rel="stylesheet" href="{% static 'home/css/home.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'home/css/home.css' %}?v=4">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
@@ -21,7 +21,6 @@
         <form action="{% url 'usuarios:logout' %}" method="post" class="form-logout">{% csrf_token %}<button type="submit" class="navbar-login">SAIR</button></form>
     </div>
     <nav class="navbar-menu" aria-label="Módulos do sistema">
-<a class="navbar-link" role="link" aria-disabled="true" title="Mapa em breve"><span class="icon"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i></span><span>MAPA</span></a>
 <a href="{% url 'register_view:pesquisar' %}" class="navbar-link"><span class="icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span><span>PESQUISAR</span></a>
 <a href="{% url 'register_view:cadastrar' %}" class="navbar-link"><span class="icon"><i class="fa-solid fa-address-card" aria-hidden="true"></i></span><span>NOVO CADASTRO</span></a>
 <a href="{% url 'home:agenda' %}" class="navbar-link"><span class="icon"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></span><span>AGENDA</span></a>
@@ -29,6 +28,7 @@
 <a href="{% url 'register_view:cronograma' %}" class="navbar-link"><span class="icon"><i class="fa-solid fa-calendar" aria-hidden="true"></i></span><span>CRONOGRAMA</span></a>
 <a href="{% url 'register_view:estatisticas' %}" class="navbar-link"><span class="icon"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></span><span>ESTATÍSTICAS</span></a>
 <a href="{% url 'denuncias:index' %}" class="navbar-link"><span class="icon"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></span><span>DENÚNCIAS</span></a>
+<a href="{% url 'arquivos:index' %}" class="navbar-link"><span class="icon"><i class="fa-solid fa-folder-open" aria-hidden="true"></i></span><span>ARQUIVOS</span></a>
     </nav>
 </header>
 <main class="main-container">
@@ -39,6 +39,7 @@
         <div class="board--mini" tabindex="0" role="region" aria-label="Agenda semanal"><div class="week-grid" id="mini-agenda" data-url="{% url 'home:api_agenda_minha' %}"></div></div>
         <noscript>Ative o JavaScript para visualizar sua agenda.</noscript>
     </section>
+    {% include 'home/partials/pendencias.html' %}
 </main>
 <script defer src="{% static 'home/js/agenda_mini.js' %}"></script>
 </body>
