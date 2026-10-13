@@ -276,6 +276,7 @@ body {
 /* Limita o conteúdo à largura disponível, mesmo com nomes e listas grandes. */
 .page-content, .metric-card, .metric-grid, .chart-box { min-width: 0; }
 .results-table { table-layout: fixed; }
+.results-table--wide { min-width: 800px; }
 .results-table th, .results-table td { overflow-wrap: anywhere; }
 .metric-filters select { min-width: 0; max-width: 100%; }
 .chart.chart-paged { height: auto !important; overflow: hidden; }

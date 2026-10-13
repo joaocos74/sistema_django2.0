@@ -339,6 +339,7 @@ def _contexto_analise(request, estabelecimento, pode_editar, form=None, inspecao
         'historico_tipos': estabelecimento.tipos.select_related('alterado_por').order_by('created_at', 'id'),
         'historico_vigilancias': estabelecimento.fiscalizacoes.select_related('fiscal').order_by('created_at', 'id'),
         'documentos': estabelecimento.documentos.select_related('enviado_por').order_by('-id'),
+        'historico_denuncias': estabelecimento.denuncias.select_related('fiscal_responsavel').order_by('-data_criacao', '-pk'),
         'tipos_documento': Documento.TipoDocumento.choices,
         'fiscais': _fiscais_visiveis(request.user),
     }
@@ -654,6 +655,7 @@ def atualizar_mes_previsto_ajax(request):
 
 @login_required
 def estatisticas_view(request):
+    from .estatisticas_modulos import anos_modulos, metricas_modulos
     ano_atual = date.today().year
     estabelecimentos_visiveis = _estabelecimentos_visiveis(request.user)
 
@@ -668,7 +670,7 @@ def estatisticas_view(request):
         estabelecimento__in=estabelecimentos_visiveis,
         data_realizacao__isnull=False,
     ).dates('data_realizacao', 'year')
-    anos_db = sorted(set(anos_db) | {data.year for data in anos_realizados}, reverse=True)
+    anos_db = sorted(set(anos_db) | {data.year for data in anos_realizados} | anos_modulos(), reverse=True)
     if not anos_db:
         anos_db = [ano_atual]
 
@@ -863,12 +865,20 @@ def estatisticas_view(request):
     if f_classe != 'todas':
         base_pendencias = base_pendencias.filter(tipo_classe=f_classe)
     metricas_pendencias = []
+    acoes_pendencias = [('plano', 'Plano de trabalho'), ('termo', 'Termo de ciência'),
+                       ('interdicao', 'Interdição'), ('processo', 'Processo')]
+    f_acao = request.GET.get('acao', 'todas')
+    if f_acao not in dict(acoes_pendencias):
+        f_acao = 'todas'
     for titulo, campo_aplicado, campo_status in (
         ('Plano de trabalho', 'plano_aplicado', 'plano_status'),
         ('Termo de ciência', 'termo_ciencia', 'termo_status'),
         ('Interdição', 'interdicao', 'interdicao_status'),
         ('Processo', 'processo', 'processo_status'),
     ):
+        chave_acao = campo_status.removesuffix('_status')
+        if f_acao != 'todas' and chave_acao != f_acao:
+            continue
         conclusoes_posteriores = Vigilancia.objects.filter(
             estabelecimento_id=OuterRef('estabelecimento_id'),
             **{
@@ -903,7 +913,10 @@ def estatisticas_view(request):
         })
 
     context = {
+        'metricas_modulos': metricas_modulos(f_ano, str(f_fiscal), request.GET),
         'metricas_pendencias': metricas_pendencias,
+        'acoes_pendencias': acoes_pendencias,
+        'f_acao': f_acao,
         'total_estabelecimentos_pendencias': base_pendencias.count(),
         'classes_pendencias': classes_pendencias,
         'anos_disponiveis': anos_db,

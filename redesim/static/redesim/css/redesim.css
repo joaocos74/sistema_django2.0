@@ -1,0 +1,145 @@
+.redesim-search {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+
+.redesim-search__field {
+    flex: 1;
+}
+
+
+/* ========================================= */
+/* STATUS DA PESQUISA                        */
+/* ========================================= */
+
+.search-status {
+    min-height: 20px;
+    margin: 10px 0 0;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+
+.search-status--info {
+    color: #475569;
+}
+
+
+.search-status--sucesso {
+    color: #15803d;
+}
+
+
+.search-status--erro {
+    color: #b91c1c;
+}
+
+
+/* ========================================= */
+/* RODAPÉ DO FORMULÁRIO                      */
+/* ========================================= */
+
+.card__footer {
+    padding: 0 18px 18px;
+}
+
+
+.redesim-form-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+/* ========================================= */
+/* RESULTADOS                                */
+/* ========================================= */
+
+.redesim-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+
+    padding: 14px 18px;
+
+    border-bottom:
+        1px solid var(--border-color);
+}
+
+
+.redesim-results-header h2 {
+    margin: 0;
+
+    font-size: 0.95rem;
+
+    color:
+        var(--primary-dark);
+}
+
+
+.redesim-results-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+
+.redesim-results {
+    padding: 18px;
+}
+
+
+.empty-state {
+    margin: 16px 0 0;
+
+    color: #64748b;
+
+    font-style: italic;
+}
+
+
+/* ========================================= */
+/* CNPJ/CPF CONFIRMADO                       */
+/* ========================================= */
+
+.form-control[readonly] {
+    background-color: #f4f6f8;
+    color: #555555;
+    cursor: not-allowed;
+}
+
+
+/* ========================================= */
+/* BOTÕES DESABILITADOS                      */
+/* ========================================= */
+
+.btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+
+/* ========================================= */
+/* RESPONSIVIDADE                            */
+/* ========================================= */
+
+@media (max-width: 700px) {
+
+    .redesim-search {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+
+    .redesim-results-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+
+    .redesim-results-actions {
+        width: 100%;
+    }
+}

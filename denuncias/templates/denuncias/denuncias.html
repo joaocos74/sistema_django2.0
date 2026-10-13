@@ -1,0 +1,71 @@
+{% extends 'register/base.html' %}
+{% load static %}
+{% block title %}Denúncias{% endblock %}
+{% block heading %}VIGILÂNCIA SANITÁRIA DE TAIOBEIRAS - DENÚNCIAS{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/denuncias.css' %}">{% endblock %}
+{% block actions %}
+<a href="#denuncias_resultados" class="btn btn-secundary">Ver Denúncias</a>
+<a href="{% url 'home:index' %}" class="btn btn-secundary">Voltar</a>
+{% endblock %}
+{% block content %}
+<form id="form-denuncia" method="post" action="{% url 'denuncias:index' %}" data-buscar-url="{% url 'denuncias:buscar_cnpj' %}">
+    {% csrf_token %}
+    <input type="hidden" name="denuncia_id" value="{{ denuncia.pk|default:'' }}">
+    {{ form.cadastro_id }}
+    {% if form.estabelecimento %}
+    <input type="hidden" name="cnpj" value="{{ form.cnpj.value }}">
+    {% endif %}
+    {% if form.errors %}<div class="alert alert-error" role="alert">Confira os campos indicados abaixo. {{ form.non_field_errors }}{{ form.cadastro_id.errors }}</div>{% endif %}
+    {% if denuncia %}<p>Denúncia {{ denuncia.pk }} — {% if denuncia.estabelecimento_id %}<a href="{% url 'register_view:analisar' denuncia.estabelecimento_id %}">Cadastro {{ denuncia.estabelecimento_id }}</a>{% else %}Sem vínculo com cadastro{% endif %}</p>{% endif %}
+    {% if not pode_editar %}<div class="alert alert-info">Somente leitura. O autor, o fiscal responsável e o administrador podem editar.</div>{% endif %}
+    <fieldset class="edit-fields" {% if not pode_editar %}disabled{% endif %}>
+        {% if not denuncia %}
+        <section class="card card--section">
+            <header class="card__header"><h2>Pesquisa por CNPJ / CPF</h2></header>
+            <div class="card__body">
+                <div class="form-group"><label for="buscar_cnpj_input">CNPJ / CPF</label>
+                    <div style="display:flex; gap:10px;"><input type="text" id="buscar_cnpj_input" maxlength="18" placeholder="Digite o CNPJ ou CPF"><button type="button" id="buscar-denuncia" class="btn btn-primary">Buscar</button></div>
+                </div>
+                <p id="busca-status" role="status">Se o local ainda não tem cadastro, preencha os dados abaixo para registrar a denúncia.</p>
+            </div>
+        </section>
+        {% endif %}
+        {% for titulo, campos in form.sections %}
+        <section class="card card--section">
+            <header class="card__header"><h2>{{ titulo }}</h2></header>
+            <div class="card__body"><div class="form-grid-2">
+                {% for field in campos %}
+                <div class="form-group{% if field.name == 'motivo' or field.name == 'medidas_adotadas' or field.name == 'endereco' %} form-group--full{% endif %}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>{{ field }}{{ field.errors }}
+                </div>
+                {% endfor %}
+            </div></div>
+        </section>
+        {% endfor %}
+    </fieldset>
+    <div class="denuncia-actions">
+        <a href="{% url 'denuncias:index' %}" class="btn btn-secundary">{% if denuncia %}Nova denúncia{% else %}Limpar{% endif %}</a>
+        {% if pode_editar %}<button type="submit" class="btn btn-primary">{% if denuncia %}Atualizar Denúncia{% else %}Salvar Denúncia{% endif %}</button>{% endif %}
+    </div>
+</form>
+<section id="denuncias_resultados" class="card card--results">
+    <header class="card__header"><h2>Histórico de Denúncias</h2></header>
+    <div class="card__body">
+        <div class="table-wrapper"><table class="table">
+            <thead><tr><th>ID</th><th>Data Denúncia</th><th>Razão Social</th><th>CNPJ / CPF</th><th>Tipo</th><th>Fiscal</th><th>Status</th><th>Cadastro</th><th>Ação</th></tr></thead>
+            <tbody>{% for item in pagina %}<tr>
+                <td>{{ item.pk }}</td><td>{{ item.data_denuncia|date:'d/m/Y'|default:'—' }}</td><td>{{ item.razao_social }}</td><td>{{ item.cnpj }}</td><td>{{ item.tipo|default:'—' }}</td>
+                <td>{{ item.nome_fiscal }}</td><td>{% include 'denuncias/status.html' with denuncia=item %}</td>
+                <td>{% if item.estabelecimento_id %}<a href="{% url 'register_view:analisar' item.estabelecimento_id %}">{{ item.estabelecimento_id }}</a>{% else %}Sem vínculo{% endif %}</td>
+                <td><a href="{% url 'denuncias:index' %}?editar={{ item.pk }}" class="btn btn-primary">Editar</a></td>
+            </tr>{% empty %}<tr><td colspan="9">Nenhuma denúncia encontrada.</td></tr>{% endfor %}</tbody>
+        </table></div>
+        <nav class="pagination" aria-label="Páginas de denúncias">
+            {% if pagina.has_previous %}<a href="?page={{ pagina.previous_page_number }}#denuncias_resultados">Anterior</a>{% endif %}
+            <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+            {% if pagina.has_next %}<a href="?page={{ pagina.next_page_number }}#denuncias_resultados">Próxima</a>{% endif %}
+        </nav>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/denuncias.js' %}?v=2" defer></script>{% endblock %}

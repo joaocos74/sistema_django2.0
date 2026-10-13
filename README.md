@@ -38,6 +38,47 @@ O banco `db.sqlite3` e os documentos em `media/` ficam somente no computador e n
 - `register/`: estabelecimentos, fiscalização, documentos e telas relacionadas.
 - `home/`: página inicial e agenda.
 - `usuarios/`: autenticação e gestão de usuários.
+- `redesim/`: pesquisa de cadastros por CNPJ/CPF, lançamento de liberações e exportação do histórico.
+- `denuncias/`: registro, consulta, atribuição de fiscal e acompanhamento de denúncias.
+
+## Redesim e Denúncias
+
+Após atualizar o código, execute `python manage.py migrate` com o ambiente virtual ativo.
+Os dois módulos estão no menu inicial.
+
+Na Redesim, pesquise um CNPJ/CPF já cadastrado. Qualquer usuário autenticado pode
+salvar a liberação, independentemente do fiscal responsável. A operação atualiza apenas o alvará e as observações
+da última fiscalização e guarda uma cópia dos dados no histórico Redesim, sem alterar
+nome, documento, fiscal ou classificação do estabelecimento. O histórico é listado
+automaticamente do lançamento mais recente ao mais antigo. Documentos não encontrados
+geram um aviso, sem criar cadastros. É necessário existir uma fiscalização para atualizar.
+Não consulta serviços externos.
+
+Em Denúncias, a busca preenche os dados do cadastro. O vínculo também é verificado no
+servidor ao salvar, ignorando a pontuação do documento. Documentos duplicados devem ser
+regularizados antes do vínculo. Locais sem cadastro podem ter denúncias sem vínculo;
+depois de cadastrar o estabelecimento, abra e salve a denúncia para vinculá-la pelo
+documento. Um vínculo já existente é preservado nas edições.
+
+O autor, o fiscal designado e o administrador podem editar a denúncia. Outros usuários
+autenticados podem consultar. Em Analisar, o bloco “Histórico de denúncias” mostra os
+registros do estabelecimento e permite abrir ou registrar uma denúncia. Atribuir um
+fiscal à denúncia não troca o fiscal do estabelecimento.
+
+As novas apps usam o banco desta versão. Dados da aplicação antiga não são importados
+automaticamente. Os riscos anteriores estão em `ANALISE_SEGURANCA.txt`.
+
+Dados do estabelecimento em denúncias vinculadas são somente leitura. Novas denúncias
+recebem esses dados do cadastro; nas edições, os dados já registrados são preservados.
+O servidor ignora alterações desses campos enviadas pelo navegador.
+
+Em Estatísticas, os blocos de Denúncias e Redesim usam os filtros de ano e fiscal e
+integram o PDF consolidado. Denúncias usam a data da denúncia (ou a data de criação
+quando ausente), o fiscal designado e o status atual. Incluem locais sem cadastro.
+Redesim usa a data de liberação, o usuário que lançou e a classificação guardada no
+histórico. Conta estabelecimentos distintos e lançamentos separadamente. Um mesmo
+local pode aparecer em vários grupos; a soma dos grupos não é o total anual distinto.
+Lançamentos Redesim sem data de liberação não entram nas estatísticas anuais.
 
 Templates, CSS e JavaScript permanecem dentro de seus respectivos aplicativos.
 

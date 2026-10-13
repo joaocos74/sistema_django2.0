@@ -1,0 +1,184 @@
+.denuncia-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; margin: 12px 0; }
+
+/* ========================================= */
+/* VARIÁVEIS E AJUSTES DE TEMA              */
+/* ========================================= */
+:root {
+    --primary-color: #169b5b;
+    --primary-dark: #0b472a;
+    --primary-light: #e8f5e9;
+    --border-color: #d0d7de;
+    --bg-color: #f0f2f5;
+    --text-color: #222222;
+    --muted-text: #555555;
+}
+
+#denuncias_resultados {
+    margin-top: 24px;
+}
+
+#buscar_cnpj_input {
+    flex-grow: 1;
+}
+
+/* ========================================= */
+/* ESTRUTURA DOS CARDS & CABEÇALHOS          */
+/* ========================================= */
+.card--results {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+}
+
+.card--results .card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card--results .card__header h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1c252e;
+    margin: 0;
+}
+
+/* ========================================= */
+/* TABELA DE HISTÓRICO DE DENÚNCIAS          */
+/* ========================================= */
+.table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+    background-color: #ffffff;
+}
+
+.table th,
+.table td {
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    vertical-align: middle;
+    color: var(--text-color);
+}
+
+.table th {
+    background-color: #ffffff;
+    font-weight: 700;
+    color: #1c252e;
+    white-space: nowrap;
+}
+
+.table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* ========================================= */
+/* BADGES DE STATUS (PÍLULAS)                */
+/* ========================================= */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Status Concluído (Verde suave idêntico ao modelo) */
+.badge-success, 
+.badge.bg-success {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+    border: none;
+}
+
+/* Status Pendente (Amarelo/Laranja) */
+.badge-warning, 
+.badge.bg-warning {
+    background-color: #fff3cd !important;
+    color: #664d03 !important;
+    border: none;
+}
+
+/* Status Em Andamento (Azul) */
+.badge-info, 
+.badge.bg-info {
+    background-color: #cff4fc !important;
+    color: #055160 !important;
+    border: none;
+}
+
+/* ========================================= */
+/* BOTÕES DA TABELA E AÇÕES                  */
+/* ========================================= */
+.btn-outline-success,
+.btn-sm.btn-primary {
+    background-color: #ffffff !important;
+    color: var(--primary-color) !important;
+    border: 1px solid var(--primary-color) !important;
+    padding: 4px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: none;
+}
+
+.btn-outline-success:hover,
+.btn-sm.btn-primary:hover {
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+/* ========================================= */
+/* DEMAIS ELEMENTOS E FEEDBACKS              */
+/* ========================================= */
+input[readonly].form-control {
+    background-color: #f6f8fa;
+    color: #555555;
+    border-color: var(--border-color);
+    cursor: not-allowed;
+}
+
+.alert {
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Animação para exibição da lista */
+#denuncias_resultados.show {
+    display: block;
+    animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-6px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}

@@ -1,0 +1,447 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>REDESIM - Novo Registro</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'register/css/cadastro.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'redesim/css/redesim.css' %}"
+    >
+</head>
+
+<body>
+
+    <header class="page-header">
+
+        <div class="navbar-logo">
+            <img
+                src="{% static 'register/img/logo.png' %}"
+                alt="Logo da Vigilância Sanitária"
+            >
+        </div>
+
+        <div class="page-header__title">
+            <h1>
+                Vigilância Sanitária de Taiobeiras - REDESIM
+            </h1>
+        </div>
+
+        <div class="page-header__actions">
+            <a
+                href="{% url 'home:index' %}"
+                class="btn btn-secundary"
+            >
+                Voltar
+            </a>
+        </div>
+
+    </header>
+
+
+    <main
+        id="redesim-app"
+        class="page-content"
+        data-url-buscar="{% url 'redesim:buscar_cnpj' %}"
+        data-url-listar="{% url 'redesim:listar' %}"
+    >
+
+        <!-- ============================================== -->
+        <!-- MENSAGENS DJANGO                               -->
+        <!-- ============================================== -->
+
+        {% if messages %}
+            <div
+                class="messages"
+                aria-live="polite"
+            >
+
+                {% for message in messages %}
+
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+        {% endif %}
+
+
+        <form
+            id="form-redesim"
+            method="post"
+            action="{% url 'redesim:index' %}"
+        >
+
+            {% csrf_token %}
+
+            <!-- ID real carregado pela pesquisa -->
+            <input
+                type="hidden"
+                id="estabelecimento_id"
+                name="estabelecimento_id"
+            >
+
+
+            <!-- ========================================== -->
+            <!-- PESQUISA                                   -->
+            <!-- ========================================== -->
+
+            <section class="card card--section">
+
+                <header class="card__header">
+                    <h2>
+                        Pesquisa por CNPJ ou CPF
+                    </h2>
+                </header>
+
+
+                <div class="card__body">
+
+                    <div class="redesim-search">
+
+                        <div
+                            class="form-group redesim-search__field"
+                        >
+
+                            <label for="buscar_documento">
+                                CNPJ / CPF
+                            </label>
+
+                            <input
+                                type="text"
+                                id="buscar_documento"
+                                class="form-control"
+                                autocomplete="off"
+                                placeholder="Digite o CNPJ ou CPF"
+                            >
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            id="btn-buscar"
+                            class="btn btn-primary"
+                        >
+                            Buscar
+                        </button>
+
+                    </div>
+
+
+                    <p
+                        id="status-busca"
+                        class="search-status"
+                        aria-live="polite"
+                    ></p>
+
+                </div>
+
+            </section>
+
+            <!-- ========================================== -->
+            <!-- DADOS DO ESTABELECIMENTO                  -->
+            <!-- ========================================== -->
+
+            <section class="card card--section">
+
+                <header class="card__header">
+                    <h2>
+                        Dados do Estabelecimento
+                    </h2>
+                </header>
+
+                <div class="card__body">
+
+                    <div class="form-grid-2">
+
+                        <!-- RAZÃO SOCIAL -->
+
+                        <div class="form-group form-group--full">
+
+                            <label for="razao_social">
+                                Nome Empresarial
+                            </label>
+
+                            <input
+                                type="text"
+                                id="razao_social"
+                                class="form-control"
+                                readonly
+                            >
+
+                        </div>
+
+
+                        <!-- NOME FANTASIA -->
+
+                        <div class="form-group form-group--full">
+
+                            <label for="nome_fantasia">
+                                Nome Fantasia
+                            </label>
+
+                            <input
+                                type="text"
+                                id="nome_fantasia"
+                                class="form-control"
+                                readonly
+                            >
+
+                        </div>
+
+
+                        <!-- NÍVEL -->
+
+                        <div class="form-group">
+
+                            <label for="nivel">
+                                Nível
+                            </label>
+
+                            <input
+                                type="text"
+                                id="nivel"
+                                class="form-control"
+                                readonly
+                            >
+
+                        </div>
+
+
+                        <!-- CLASSE -->
+
+                        <div class="form-group">
+
+                            <label for="classe">
+                                Classe
+                            </label>
+
+                            <input
+                                type="text"
+                                id="classe"
+                                class="form-control"
+                                readonly
+                            >
+
+                        </div>
+
+
+                        <!-- DOCUMENTO -->
+
+                        <div class="form-group">
+
+                            <label for="cnpj_ou_cpf">
+                                CNPJ / CPF
+                            </label>
+
+                            <input
+                                type="text"
+                                id="cnpj_ou_cpf"
+                                name="cnpj_ou_cpf"
+                                class="form-control"
+                                readonly
+                            >
+
+                        </div>
+
+
+                        <!-- CNAE -->
+
+                        <div class="form-group">
+
+                            <label for="cnae_principal">
+                                CNAE Principal
+                            </label>
+
+                            <input
+                                type="text"
+                                id="cnae_principal"
+                                class="form-control"
+                                readonly
+                            >
+
+                        </div>
+
+
+                        <!-- FISCAL -->
+
+                        <div class="form-group form-group--full">
+
+                            <label for="fiscal_responsavel">
+                                Fiscal Responsável
+                            </label>
+
+                            <input
+                                type="text"
+                                id="fiscal_responsavel"
+                                class="form-control"
+                                readonly
+                            >
+
+                        </div>
+
+
+                        <!-- DATA DA LIBERAÇÃO -->
+
+                        <div class="form-group">
+
+                            <label for="alvara">
+                                Data da Liberação
+                            </label>
+
+                            <input
+                                type="date"
+                                id="alvara"
+                                max="{{ hoje|date:'Y-m-d' }}"
+                                name="alvara"
+                                class="form-control campo-editavel-redesim"
+                                disabled
+                            >
+
+                        </div>
+
+
+                        <!-- OBSERVAÇÕES -->
+
+                        <div class="form-group form-group--full">
+
+                            <label for="observacoes">
+                                Observações
+                            </label>
+
+                            <textarea
+                                id="observacoes"
+                                name="observacoes"
+                                class="form-control campo-editavel-redesim"
+                                rows="4"
+                                disabled
+                            ></textarea>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card__footer redesim-form-actions">
+
+                    <button
+                        type="submit"
+                        id="btn-salvar"
+                        class="btn btn-primary"
+                        disabled
+                    >
+                        Salvar
+                    </button>
+
+                </div>
+
+            </section>
+
+        </form>
+
+
+        <!-- ============================================== -->
+        <!-- ESTABELECIMENTOS LIBERADOS                     -->
+        <!-- ============================================== -->
+
+        <section class="card card--results">
+
+            <div class="redesim-results-header">
+
+                <h2>
+                    Estabelecimentos Liberados (REDESIM)
+                </h2>
+
+
+                <div class="redesim-results-actions">
+
+
+
+
+                    <button
+                        type="button"
+                        id="btn-exportar"
+                        class="btn btn-tertiary"
+                        disabled
+                    >
+                        Exportar Excel
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="redesim_resultados"
+                class="redesim-results"
+            >
+
+                <div class="table-wrapper">
+
+                    <table
+                        class="table"
+                        id="tabela_redesim"
+                    >
+
+                        <thead>
+
+                            <tr>
+                                <th>Cadastro</th>
+                                <th>Nível</th>
+                                <th>Classe</th>
+                                <th>Razão Social</th>
+                                <th>CNPJ / CPF</th>
+                                <th>Data da Liberação</th>
+                                <th>Fiscal que liberou</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="corpo_redesim"></tbody>
+
+                    </table>
+
+                </div>
+
+
+                <p
+                    id="redesim-vazio"
+                    class="empty-state"
+                    hidden
+                >
+                    Nenhum registro REDESIM encontrado.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script
+        src="{% static 'redesim/js/redesim.js' %}?v=20261013-2"
+    ></script>
+
+</body>
+
+</html>

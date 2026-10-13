@@ -182,9 +182,12 @@ for (const [id, fonte, titulo, campo] of [
         rotulo: item[campo], feito: item.total_feito, pendente: item.total_afazer,
     })), titulo, 'Feito', 'A fazer');
 }
-barrasDuplas('chartClasse', (dados('js-metricas-classe') || []).map(item => ({
-    rotulo: item.classe, feito: item.inspecionados, pendente: Math.max(0, item.total - item.inspecionados),
-})), 'Estabelecimentos por classe', 'Inspecionados', 'Não inspecionados');
+barrasAgrupadas('chartClasse', (dados('js-metricas-classe') || []).map(item => ({
+    rotulo: item.classe, total: item.total, inspecionados: item.inspecionados,
+})), 'Estabelecimentos por classe', [
+    {chave: 'total', nome: 'Total existente', cor: '#2563eb'},
+    {chave: 'inspecionados', nome: 'Inspecionados no ano', cor: '#169b5b'},
+]);
 
 
 barrasAgrupadas('chartPendencias', (dados('js-metricas-pendencias') || []).map(item => ({
@@ -196,6 +199,10 @@ barrasAgrupadas('chartPendencias', (dados('js-metricas-pendencias') || []).map(i
 ]);
 
 // O relatório usa as seleções com que os dados foram carregados, não alterações ainda não enviadas.
+for (const card of dados('js-metricas-modulos') || []) {
+    barrasAgrupadas(`chart-${card.id}`, card.itens, card.titulo, card.series);
+}
+
 document.querySelectorAll('.metric-card .filter-form').forEach(form => {
     const summary = document.createElement('p');
     summary.className = 'report-filters';

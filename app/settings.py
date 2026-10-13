@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     'register',
     'home.apps.HomeConfig',
     'usuarios.apps.UsuariosConfig',
+    'redesim.apps.RedesimConfig',
+    'denuncias.apps.DenunciasConfig',
 ]
 
 MIDDLEWARE = [

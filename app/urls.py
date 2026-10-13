@@ -26,6 +26,8 @@ def test_view(request):
 
 
 urlpatterns = [
+    path('redesim/', include('redesim.urls')),
+    path('denuncias/', include('denuncias.urls')),
     path('', include('home.urls')),
     path('usuarios/', include('usuarios.urls')),
     path('admin/', admin.site.urls),

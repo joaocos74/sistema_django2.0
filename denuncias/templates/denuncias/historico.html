@@ -1,0 +1,17 @@
+<details class="card analysis-panel" id="historico-denuncias">
+    <summary class="card__header">Histórico de denúncias <span class="panel-hint">Ver mais / recolher</span></summary>
+    <div class="card__body">
+        <p><a class="btn btn-primary" href="{% url 'denuncias:index' %}?estabelecimento={{ estabelecimento.pk }}">Registrar denúncia</a></p>
+        <div class="table-wrapper"><table class="table">
+            <thead><tr><th>ID</th><th>Data</th><th>Tipo</th><th>Motivo</th><th>Fiscal</th><th>Status</th><th>Tratativa</th><th>Medidas adotadas</th><th>Ação</th></tr></thead>
+            <tbody>{% for denuncia in historico_denuncias %}<tr>
+                <td>{{ denuncia.pk }}</td><td>{{ denuncia.data_denuncia|date:'d/m/Y'|default:'—' }}</td>
+                <td>{{ denuncia.tipo|default:'—' }}</td><td>{{ denuncia.motivo|default:'—'|linebreaksbr }}</td>
+                <td>{{ denuncia.nome_fiscal }}</td>
+                <td>{% include 'denuncias/status.html' %}</td><td>{{ denuncia.data_tratativa|date:'d/m/Y'|default:'—' }}</td>
+                <td>{{ denuncia.medidas_adotadas|default:'—'|linebreaksbr }}</td>
+                <td><a href="{% url 'denuncias:index' %}?editar={{ denuncia.pk }}" class="btn btn-primary">Editar</a></td>
+            </tr>{% empty %}<tr><td colspan="9">Nenhuma denúncia vinculada a este estabelecimento.</td></tr>{% endfor %}</tbody>
+        </table></div>
+    </div>
+</details>

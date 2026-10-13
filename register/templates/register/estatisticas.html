@@ -1,7 +1,7 @@
 {% extends 'register/base.html' %}
 {% load static %}
 {% block title %}Estatísticas{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'register/css/estatisticas.css' %}?v=8">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'register/css/estatisticas.css' %}?v=9">{% endblock %}
 {% block actions %}
 <a href="{% url 'home:index' %}" class="btn btn-secundary">Voltar</a>
 <button type="button" class="btn btn-primary" id="exportar-pdf">Exportar consolidado em PDF</button>
@@ -365,6 +365,13 @@
               {% for fiscal in fiscais %}<option value="{{ fiscal.pk }}" {% if f_fiscal == fiscal.pk|stringformat:'s' %}selected{% endif %}>{{ fiscal.get_full_name|default:fiscal.username }}</option>{% endfor %}
             </select>
           </div>
+          <div class="form-group">
+            <label for="pendencias-acao">Ação</label>
+            <select id="pendencias-acao" name="acao">
+              <option value="todas">Todas</option>
+              {% for valor, nome in acoes_pendencias %}<option value="{{ valor }}" {% if f_acao == valor %}selected{% endif %}>{{ nome }}</option>{% endfor %}
+            </select>
+          </div>
           <button type="submit" class="btn btn-primary">Atualizar</button>
         </div>
       </form>
@@ -397,6 +404,7 @@
       </details>
     </section>
 
+{% include 'register/partials/estatisticas_modulos.html' %}
 {% endblock %}
 {% block scripts %}
   <!-- TRANSMISSÃO SEGURA DE DADOS VIA TAG JSON_SCRIPT DO DJANGO -->
@@ -407,5 +415,5 @@
   {{ metricas_meses|json_script:"js-chart-mes" }}
   {{ metricas_classe|json_script:"js-metricas-classe" }}
 
-  <script defer src="{% static 'register/js/estatisticas.js' %}?v=8"></script>
+  <script defer src="{% static 'register/js/estatisticas.js' %}?v=10"></script>
 {% endblock %}
