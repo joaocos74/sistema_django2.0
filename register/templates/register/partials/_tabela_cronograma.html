@@ -1,0 +1,62 @@
+<div class="table-wrapper">
+<table class="table-cronograma">
+    <thead>
+        <tr>
+            <th style="width: 60px;">ID</th>
+            <th style="width: 90px;">Risco</th>
+            <th>Estabelecimento</th>
+            <th style="width: 160px;">CNPJ / CPF</th>
+            <th style="width: 130px;">Última Inspeção</th>
+            <th style="width: 140px;">Mês Previsto</th>
+            <th style="width: 120px;">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in itens %}
+        <tr>
+            <td>{{ item.estabelecimento.id }}</td>
+            <td>RISCO {{ item.estabelecimento.tipo_risco|default:"—" }}</td>
+            <td>
+                <a href="{% url 'register_view:analisar' item.estabelecimento.id %}" style="text-decoration: none; color: #0056b3; font-weight: 500;">
+                    {{ item.estabelecimento.nome_fantasia|default:item.estabelecimento.razao_social }}
+                </a>
+            </td>
+            <td>{{ item.estabelecimento.cnpj }}</td>
+            <td>{{ item.ultima_inspecao|date:"d/m/Y"|default:"-" }}</td>
+            <td>
+                <select class="select-mes" 
+                        data-estabelecimento="{{ item.estabelecimento.id }}" aria-label="Mês previsto para {{ item.estabelecimento.nome_fantasia }}"
+                        {% if not item.pode_editar or item.status == 'REALIZADO' or item.status == 'CANCELADO' %}disabled{% endif %}>
+                    <option value="">Selecione...</option>
+                    <option value="1" {% if item.mes_previsto == 1 %}selected{% endif %}>Janeiro</option>
+                    <option value="2" {% if item.mes_previsto == 2 %}selected{% endif %}>Fevereiro</option>
+                    <option value="3" {% if item.mes_previsto == 3 %}selected{% endif %}>Março</option>
+                    <option value="4" {% if item.mes_previsto == 4 %}selected{% endif %}>Abril</option>
+                    <option value="5" {% if item.mes_previsto == 5 %}selected{% endif %}>Maio</option>
+                    <option value="6" {% if item.mes_previsto == 6 %}selected{% endif %}>Junho</option>
+                    <option value="7" {% if item.mes_previsto == 7 %}selected{% endif %}>Julho</option>
+                    <option value="8" {% if item.mes_previsto == 8 %}selected{% endif %}>Agosto</option>
+                    <option value="9" {% if item.mes_previsto == 9 %}selected{% endif %}>Setembro</option>
+                    <option value="10" {% if item.mes_previsto == 10 %}selected{% endif %}>Outubro</option>
+                    <option value="11" {% if item.mes_previsto == 11 %}selected{% endif %}>Novembro</option>
+                    <option value="12" {% if item.mes_previsto == 12 %}selected{% endif %}>Dezembro</option>
+                </select>
+
+                
+            </td>
+            <td>
+                <span class="status-badge {{ item.status_class }}">
+                    {{ item.status }}
+                </span>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" style="text-align: center; color: #777; padding: 15px;">
+                Nenhum estabelecimento neste grupo.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>

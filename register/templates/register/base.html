@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Estabelecimentos{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'register/css/cadastro.css' %}">
+    <link rel="stylesheet" href="{% static 'register/css/register.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="page-header">
+        <div class="navbar-logo"><img src="{% static 'register/img/logo.png' %}" alt="Vigilância Sanitária de Taiobeiras"></div>
+        <div class="page-header__title"><h1>{% block heading %}VIGILÂNCIA SANITÁRIA DE TAIOBEIRAS{% endblock %}</h1></div>
+        <div class="page-header__actions">{% block actions %}<a href="{% url 'home:index' %}" class="btn btn-secundary">Voltar</a>{% endblock %}</div>
+    </header>
+    <main class="page-content">
+        {% for message in messages %}<div class="alert alert-{{ message.tags }}" role="status">{{ message }}</div>{% endfor %}
+        {% block content %}{% endblock %}
+    </main>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

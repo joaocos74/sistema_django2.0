@@ -1,0 +1,29 @@
+.register-nav { display: flex; flex-wrap: wrap; gap: 1rem; padding: 1rem 24px; background: white; border-bottom: 1px solid var(--border-color); }
+.register-nav a { color: var(--primary-dark); }
+.nav-logout { margin: 0; }
+.nav-logout button { border: 0; padding: 0; background: none; color: var(--primary-dark); font: inherit; text-decoration: underline; cursor: pointer; }
+.edit-fields { border: 0; margin: 0; padding: 0; min-width: 0; }
+.document-upload { margin-bottom: 1.5rem; }
+.document-upload button { margin-top: 1rem; }
+.table-wrapper { overflow-x: auto; }
+.pagination { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+input:not([type]), input[type="file"], input[type="month"] { width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 4px; }
+button:disabled, select:disabled { cursor: not-allowed; opacity: .7; }
+@media print {
+    .register-nav, .page-header__actions, .document-upload, button, form[data-confirm] { display: none !important; }
+    .page-content { max-width: none; margin: 0; }
+    .card { break-inside: avoid; box-shadow: none; }
+}
+
+/* Blocos expansíveis apenas na tela de análise. */
+.analysis-panel > summary {
+    cursor: pointer;
+    color: var(--primary-dark);
+    font-weight: 600;
+    font-size: .95rem;
+}
+.analysis-panel > summary::marker { color: var(--primary-color); }
+.analysis-panel > summary:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+.analysis-panel:not([open]) > summary { border-bottom: 0; }
+.panel-hint { float: right; font-weight: normal; font-size: .8rem; color: var(--muted-text); }
+@media print { .panel-hint { display: none; } }

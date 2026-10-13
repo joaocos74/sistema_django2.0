@@ -1,0 +1,27 @@
+{% extends 'register/base.html' %}
+{% load static %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">{% endblock %}
+{% block content %}
+<section class="card usuario-form">
+    <h2>{{ titulo }}</h2>
+    {% if perfil %}<p>Usuário: <strong>{{ request.user.username }}</strong></p>{% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="usuario-help">{{ field.help_text }}</div>{% endif %}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+        <div class="usuario-actions">
+            <button class="btn btn-primary" type="submit">{{ botao }}</button>
+            {% if perfil %}<a class="btn btn-secundary" href="{% url 'usuarios:alterar_senha' %}">Alterar senha</a>{% endif %}
+            <a class="btn btn-secundary" href="{% url 'home:index' %}">Voltar ao início</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

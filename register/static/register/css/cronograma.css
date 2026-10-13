@@ -1,0 +1,65 @@
+.quadrimestre-title {
+    background-color: #f4f6f9;
+    padding: 10px 15px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    margin-top: 25px;
+    text-transform: uppercase;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    display: inline-block;
+    text-align: center;
+}
+
+.status-realizado { 
+    background-color: #d4edda; 
+    color: #155724; 
+}
+
+.status-afazer { 
+    background-color: #fff3cd; 
+    color: #856404; 
+}
+
+.status-cancelado {
+    background-color: #f8d7da; 
+    color: #721c24; 
+}
+
+.status-pendente {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.table-cronograma { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-bottom: 20px; 
+    font-size: 0.9rem; 
+}
+
+.table-cronograma th, 
+.table-cronograma td { 
+    border: 1px solid #dee2e6; 
+    padding: 8px; 
+    text-align: left; 
+}
+
+.table-cronograma th { 
+    background-color: #ffffff; 
+    font-weight: 600; 
+}
+
+.select-mes { 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    border: 1px solid #ccc; 
+    font-size: 0.85rem; 
+}

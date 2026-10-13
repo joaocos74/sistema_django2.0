@@ -1,0 +1,13 @@
+.usuario-form { width: 100%; max-width: 620px; margin: 0 auto; padding: 24px; }
+.usuario-form .form-group { margin-bottom: 18px; }
+.usuario-form input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; }
+.usuario-actions { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 16px 0; }
+.usuario-help { font-size: 12px; line-height: 1.5; color: var(--muted-text); margin-top: 6px; }
+.usuario-help ul { padding-left: 20px; }
+.errorlist { color: #b91c1c; font-size: 13px; }
+.login-container { max-width: 500px; margin: 8vh auto; padding: 16px; }
+.login-container h1 { font-size: 22px; color: var(--primary-dark); }
+.usuarios-table { width: 100%; border-collapse: collapse; }
+.usuarios-table th, .usuarios-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); overflow-wrap: anywhere; }
+
+.usuario-form input[type="color"] { width: 76px; height: 44px; padding: 3px; }

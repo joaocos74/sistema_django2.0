@@ -1,0 +1,41 @@
+.board { max-width: 100%; min-width: 0; margin: 20px 0; }
+.week-grid { display: grid; grid-template-columns: repeat(6, minmax(210px, 1fr)); gap: 12px; overflow-x: auto; padding: 8px; }
+.day-col { min-width: 0; border: 1px solid var(--border-color); border-radius: 8px; background: #fff; }
+.day-head { padding: 12px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.day-title { font-weight: 600; font-size: 14px; }
+.day-actions { display: flex; gap: 6px; }
+.slot { border-top: 1px dashed var(--border-color); padding: 12px 6px; min-height: 160px; }
+.slot::before { content: attr(data-label); display: block; font-size: 12px; margin: 0 8px 10px; }
+.slot.dragover { outline: 2px dashed var(--primary-color); outline-offset: -3px; }
+.postit { padding: 12px; margin: 8px; border: 1px solid #0002; border-radius: 8px; color: #111827; background: #fef08a; }
+.postit[draggable=true] { cursor: grab; }
+.postit.feito .texto { text-decoration: line-through; }
+.postit .top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.postit .autor, .autor-mini { font-size: 11px; margin-bottom: 6px; }
+.postit .texto { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 180px; overflow: auto; font-size: 13px; }
+.icon-btn, .day-actions button { font: inherit; font-size: 12px; padding: 4px; cursor: pointer; border: 1px solid #0003; border-radius: 4px; background: #ffffffb3; }
+#modal-postit { border: 1px solid var(--border-color); border-radius: 10px; width: min(94vw, 500px); max-height: 90vh; padding: 24px; }
+#modal-postit::backdrop { background: #0008; }
+#modal-postit input, #modal-postit select, #modal-postit textarea { width: 100%; padding: 8px; font: inherit; }
+#modal-postit .form-group { margin-bottom: 14px; }
+.modal-buttons { display: flex; justify-content: flex-end; gap: 12px; }
+.home-agenda { margin-top: 24px; padding: 20px; }
+@media (max-width: 650px) { .week-grid { grid-template-columns: 1fr; } }
+@media print {
+  .week-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
+  .postit { print-color-adjust: exact; -webkit-print-color-adjust: exact; break-inside: avoid; }
+  .postit .texto { max-height: none; overflow: visible; }
+  .day-actions, .postit .top, #modal-postit { display: none; }
+}
+
+/* Quadro semanal e lembretes no estilo do projeto original. */
+.week-grid { background: #ffffffdf; border: 1px solid #0000001a; border-radius: 12px; padding: 12px; }
+.day-col { border-radius: 14px; background: #f9fafb; }
+.day-head { background: #ffffff8c; border-bottom: 1px solid #00000014; }
+.slot { min-height: 230px; }
+.slot::before { padding: 6px 10px; font-weight: 600; border: 1px solid #0000001a; border-radius: 8px; background: #ffffff8c; }
+.postit { border-radius: 12px; box-shadow: 0 6px 14px #0000001a; }
+.postit.feito { opacity: .65; }
+.day-actions button { padding: 6px 10px; border-radius: 8px; }
+@media (min-width: 651px) and (max-width: 1100px) { .week-grid { grid-template-columns: repeat(3, minmax(210px, 1fr)); } }
+@media print { .week-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

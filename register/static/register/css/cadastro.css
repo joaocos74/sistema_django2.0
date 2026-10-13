@@ -1,0 +1,472 @@
+:root {
+    --primary-color: #169b5b;
+    --primary-dark: #0b472a;
+    --secundary-color: #f05454;
+    --tertiary-color: #2f49c0;
+    --border-color: #d0d7de;
+    --bg-color: #f0f2f5;
+    --text-color: #222222;
+    --muted-text: #555555;
+    --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);
+    color: var(--text-color);
+    background-color: var(--bg-color);
+}
+
+/* ========================= */
+/* HEADER DA PÁGINA */
+/* ========================= */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.navbar-logo img {
+    height: 50px;
+    width: auto;
+}
+
+.page-header__title h1 {
+    margin: 0;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-color);
+}
+
+.page-header__actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ========================= */
+/* ESTRUTURA PRINCIPAL */
+/* ========================= */
+.page-content {
+    max-width: 1100px;
+    margin: 24px auto 40px auto;
+    padding: 0 16px;
+}
+
+/* ========================= */
+/* CARDS E SEÇÕES */
+/* ========================= */
+.card {
+    background-color: #ffffff;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.card__header {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: #fafafa;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.card__header h2 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+.card__body {
+    padding: 16px 18px;
+}
+
+/* ========================= */
+/* GRID E FORMULÁRIOS */
+/* ========================= */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group--full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--muted-text);
+}
+
+.errorlist {
+    margin: 6px 0;
+    padding-left: 20px;
+    color: #b42318;
+    font-size: 0.85rem;
+}
+
+.form-control[aria-invalid="true"] {
+    border-color: #b42318;
+}
+
+/* PADRONIZAÇÃO DE INPUTS, SELECTS E TEXTAREAS */
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group select,
+.form-group textarea,
+.form-control {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: #ffffff;
+    color: var(--text-color);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* FOCO NOS CAMPOS */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(22, 155, 91, 0.15);
+}
+
+/* CAMPOS DESABILITADOS */
+.form-group input:disabled,
+.form-group select:disabled {
+    background-color: #f4f6f8;
+    color: #777777;
+    cursor: not-allowed;
+}
+
+/* ========================= */
+/* BOTÕES */
+/* ========================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-secundary {
+    background-color: #ffffff;
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+.btn-secundary:hover {
+    background-color: var(--secundary-color);
+    color: #ffffff;
+    border-color: var(--secundary-color);
+}
+
+.btn-tertiary {
+    background-color: #ffffff;
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+.btn-tertiary:hover {
+    background-color: var(--tertiary-color);
+    color: #ffffff;
+    border-color: var(--tertiary-color);
+}
+
+/* ========================= */
+/* ALERTAS DO DJANGO */
+/* ========================= */
+.alert {
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+}
+
+.alert-success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-color: #c8e6c9;
+}
+
+.alert-error, .alert-danger {
+    background-color: #ffebee;
+    color: #c62828;
+    border-color: #ffcdd2;
+}
+
+.alert-warning {
+    background-color: #fffde7;
+    color: #f57f17;
+    border-color: #fff9c4;
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border-color: #bbdefb;
+}
+
+/* ========================= */
+/* RESPONSIVIDADE */
+/* ========================= */
+@media (max-width: 800px) {
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .page-header__actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* LINHA INATIVA NA PESQUISA (Vermelho Claro) */
+.table tbody tr.row-inativo {
+    background-color: #fff0f0 !important;
+    color: #9c0000;
+}
+
+.table tbody tr.row-inativo:hover {
+    background-color: #fde2e2 !important;
+}
+
+/* BADGES DE STATUS (Sim / Não) */
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.badge-success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.badge-danger {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+}
+
+/* CONTAINER DA TABELA COM SCROLL */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.info-header-badge {
+    background: #e8f0fe;
+    color: #1a73e8;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+/* ========================================= */
+/* ESTILOS PARA TABELA (PESQUISAR)           */
+/* ========================================= */
+
+/* Título centralizado acima da tabela */
+.table-header-title {
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #222222;
+    margin-bottom: 12px;
+}
+
+.table-header-title span {
+    font-weight: normal;
+    color: #666666;
+}
+
+/* Estrutura da Tabela com bordas finas e fundo limpo */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    background-color: #ffffff;
+}
+
+.table th,
+.table td {
+    padding: 8px 12px;
+    border: 1px solid #d0d7de;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.table th {
+    background-color: #f6f8fa;
+    font-weight: 700;
+    color: #222222;
+}
+
+/* Remove a cor vermelha intensa das linhas inativas para manter a tabela limpa */
+.table tbody tr,
+.table tbody tr.row-inativo {
+    background-color: #ffffff !important;
+    color: #222222 !important;
+}
+
+/* ========================================= */
+/* BOTÃO "ANALISAR" (VERDE)                  */
+/* ========================================= */
+
+/* Opção 1: Botão Verde Vazado/Outline (Foto 4) */
+.btn-outline-success {
+    background-color: transparent;
+    color: #169b5b;
+    border: 1px solid #169b5b;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-success:hover {
+    background-color: #169b5b;
+    color: #ffffff;
+}
+
+/* Opção 2: Botão Verde Preenchido (Foto 5) */
+.btn-success {
+    background-color: #169b5b;
+    color: #ffffff;
+    border: 1px solid #169b5b;
+    padding: 5px 14px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.btn-success:hover {
+    background-color: #0b472a;
+    border-color: #0b472a;
+}
+
+/* ========================================= */
+/* HEADER DA TELA DE ANALISAR (Foto 6)       */
+/* ========================================= */
+
+.card__header--center {
+    text-align: center;
+    padding: 12px;
+    border-bottom: none;
+}
+
+.card__header--center h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #222222;
+}
+
+/* Faixa cinza clara com ID e Nome Fantasia */
+.info-bar {
+    background-color: #f4f6f8;
+    border-radius: 6px;
+    padding: 10px 16px;
+    margin: 0 16px 16px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #333333;
+}
+/* Destaque vermelho suave para estabelecimentos inativos na tabela */
+.table tbody tr.row-inativo {
+    background-color: #ffebee !important;
+}
+
+.table tbody tr.row-inativo td {
+    color: #c62828 !important;
+}
+
+.table tbody tr.row-inativo:hover {
+    background-color: #ffcdd2 !important;
+}
+/* Destaque em vermelho para linhas de estabelecimentos inativos */
+.table tbody tr.row-inativo {
+    background-color: #ffebee !important;
+}
+
+.table tbody tr.row-inativo td,
+.table tbody tr.row-inativo td strong,
+.table tbody tr.row-inativo td small {
+    color: #c62828 !important;
+}
+
+.table tbody tr.row-inativo:hover {
+    background-color: #ffcdd2 !important;
+}

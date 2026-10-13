@@ -1,0 +1,411 @@
+{% extends 'register/base.html' %}
+{% load static %}
+{% block title %}Estatísticas{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'register/css/estatisticas.css' %}?v=7">{% endblock %}
+{% block actions %}
+<a href="{% url 'home:index' %}" class="btn btn-secundary"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar</a>
+<button type="button" class="btn btn-primary" id="exportar-pdf">Exportar consolidado em PDF</button>
+{% endblock %}
+{% block content %}
+    <p class="export-instruction">Para baixar o consolidado com tabelas e gráficos, clique em exportar e selecione “Salvar como PDF”.</p>
+    <div class="report-heading"><h1>Consolidado de estatísticas</h1><p id="report-date"></p></div>
+    <!-- 1. MÉTRICAS POR ANO -->
+    <section class="card metric-card" id="metricas-ano">
+      <h2 class="metric-title">MÉTRICAS POR ANO</h2>
+      <form method="GET" action="#metricas-ano" class="filter-form">
+        <div class="metric-filters">
+          <div class="form-group">
+            <label>ANO</label>
+            <select name="ano">
+              {% for ano in anos_disponiveis %}
+                <option value="{{ ano }}" {% if ano == f_ano %}selected{% endif %}>{{ ano }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>FISCAL</label>
+            <select name="fiscal">
+              <option value="todos" {% if f_fiscal == 'todos' %}selected{% endif %}>Todos</option>
+              {% for f in fiscais %}
+                <option value="{{ f.id }}" {% if f_fiscal == f.id|stringformat:'s' %}selected{% endif %}>
+                  {{ f.get_full_name|default:f.username }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Atualizar</button>
+        </div>
+      </form>
+
+      <div class="metric-grid">
+        <div class="table-wrapper">
+          <table class="results-table">
+            <thead>
+              <tr><th>Ano</th><th>Total</th><th>Inspecionados no Ano</th><th>Percentual</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ metricas_ano.ano }}</td>
+                <td>{{ metricas_ano.total }}</td>
+                <td>{{ metricas_ano.inspecionados }}</td>
+                <td>{{ metricas_ano.percentual }}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-box">
+          <div id="chartAno" class="chart"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. MÉTRICAS POR RISCO -->
+    <section class="card metric-card" id="metricas-risco">
+      <h2 class="metric-title">MÉTRICAS POR RISCO</h2>
+      <form method="GET" action="#metricas-risco" class="filter-form">
+        <div class="metric-filters">
+          <div class="form-group">
+            <label>ANO</label>
+            <select name="ano">
+              {% for ano in anos_disponiveis %}
+                <option value="{{ ano }}" {% if ano == f_ano %}selected{% endif %}>{{ ano }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>RISCO</label>
+            <select name="risco">
+              <option value="todos" {% if f_risco == 'todos' %}selected{% endif %}>Todos</option>
+              {% for r in riscos_disponiveis %}
+                <option value="{{ r }}" {% if f_risco == r %}selected{% endif %}>Risco {{ r }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>FISCAL</label>
+            <select name="fiscal">
+              <option value="todos" {% if f_fiscal == 'todos' %}selected{% endif %}>Todos</option>
+              {% for f in fiscais %}
+                <option value="{{ f.id }}" {% if f_fiscal == f.id|stringformat:'s' %}selected{% endif %}>
+                  {{ f.get_full_name|default:f.username }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Atualizar</button>
+        </div>
+      </form>
+
+      <div class="metric-grid">
+        <div class="table-wrapper">
+          <table class="results-table">
+            <thead>
+              <tr><th>Risco</th><th>Total por Risco</th><th>Inspecionados no Ano</th><th>Percentual</th></tr>
+            </thead>
+            <tbody>
+              {% for item in metricas_risco %}
+              <tr>
+                <td>Risco {{ item.risco }}</td>
+                <td>{{ item.total }}</td>
+                <td>{{ item.inspecionados }}</td>
+                <td>{{ item.percentual }}%</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" style="text-align:center;">Nenhum dado encontrado.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-box">
+          <div id="chartRisco" class="chart"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. MÉTRICAS POR QUADRIMESTRE -->
+    <section class="card metric-card" id="metricas-quadrimestre">
+      <h2 class="metric-title">MÉTRICAS POR QUADRIMESTRE</h2>
+      <form method="GET" action="#metricas-quadrimestre" class="filter-form">
+        <div class="metric-filters">
+          <div class="form-group">
+            <label>ANO</label>
+            <select name="ano">
+              {% for ano in anos_disponiveis %}
+                <option value="{{ ano }}" {% if ano == f_ano %}selected{% endif %}>{{ ano }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>RISCO</label>
+            <select name="risco">
+              <option value="todos" {% if f_risco == 'todos' %}selected{% endif %}>Todos</option>
+              {% for r in riscos_disponiveis %}
+                <option value="{{ r }}" {% if f_risco == r %}selected{% endif %}>Risco {{ r }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>QUADRIMESTRE</label>
+            <select name="quadrimestre">
+              <option value="todos" {% if f_quadrimestre == 'todos' %}selected{% endif %}>TODOS</option>
+              <option value="1" {% if f_quadrimestre == '1' %}selected{% endif %}>1º Quadrimestre</option>
+              <option value="2" {% if f_quadrimestre == '2' %}selected{% endif %}>2º Quadrimestre</option>
+              <option value="3" {% if f_quadrimestre == '3' %}selected{% endif %}>3º Quadrimestre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>FISCAL</label>
+            <select name="fiscal">
+              <option value="todos" {% if f_fiscal == 'todos' %}selected{% endif %}>Todos</option>
+              {% for f in fiscais %}
+                <option value="{{ f.id }}" {% if f_fiscal == f.id|stringformat:'s' %}selected{% endif %}>
+                  {{ f.get_full_name|default:f.username }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Atualizar</button>
+        </div>
+      </form>
+
+      <div class="metric-grid">
+        <div class="table-wrapper">
+          <table class="results-table">
+            <thead>
+              <tr><th>Quadrimestre</th><th>Total a Fazer</th><th>Total Feito</th><th>Percentual</th></tr>
+            </thead>
+            <tbody>
+              {% for item in metricas_quadrimestre %}
+              <tr>
+                <td>{{ item.quadrimestre }}</td>
+                <td>{{ item.total_afazer }}</td>
+                <td>{{ item.total_feito }}</td>
+                <td>{{ item.percentual }}%</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" style="text-align:center;">Nenhum dado encontrado.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-box">
+          <div id="chartQuad" class="chart"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. MÉTRICAS POR MÊS -->
+    <section class="card metric-card" id="metricas-mes">
+      <h2 class="metric-title">MÉTRICAS POR MÊS</h2>
+      <form method="GET" action="#metricas-mes" class="filter-form">
+        <div class="metric-filters">
+          <div class="form-group">
+            <label>ANO</label>
+            <select name="ano">
+              {% for ano in anos_disponiveis %}
+                <option value="{{ ano }}" {% if ano == f_ano %}selected{% endif %}>{{ ano }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>RISCO</label>
+            <select name="risco">
+              <option value="todos" {% if f_risco == 'todos' %}selected{% endif %}>Todos</option>
+              {% for r in riscos_disponiveis %}
+                <option value="{{ r }}" {% if f_risco == r %}selected{% endif %}>Risco {{ r }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>MÊS</label>
+            <select name="mes">
+              <option value="todos" {% if f_mes == 'todos' %}selected{% endif %}>Todos</option>
+              <option value="1" {% if f_mes == '1' %}selected{% endif %}>JANEIRO</option>
+              <option value="2" {% if f_mes == '2' %}selected{% endif %}>FEVEREIRO</option>
+              <option value="3" {% if f_mes == '3' %}selected{% endif %}>MARÇO</option>
+              <option value="4" {% if f_mes == '4' %}selected{% endif %}>ABRIL</option>
+              <option value="5" {% if f_mes == '5' %}selected{% endif %}>MAIO</option>
+              <option value="6" {% if f_mes == '6' %}selected{% endif %}>JUNHO</option>
+              <option value="7" {% if f_mes == '7' %}selected{% endif %}>JULHO</option>
+              <option value="8" {% if f_mes == '8' %}selected{% endif %}>AGOSTO</option>
+              <option value="9" {% if f_mes == '9' %}selected{% endif %}>SETEMBRO</option>
+              <option value="10" {% if f_mes == '10' %}selected{% endif %}>OUTUBRO</option>
+              <option value="11" {% if f_mes == '11' %}selected{% endif %}>NOVEMBRO</option>
+              <option value="12" {% if f_mes == '12' %}selected{% endif %}>DEZEMBRO</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>FISCAL</label>
+            <select name="fiscal">
+              <option value="todos" {% if f_fiscal == 'todos' %}selected{% endif %}>Todos</option>
+              {% for f in fiscais %}
+                <option value="{{ f.id }}" {% if f_fiscal == f.id|stringformat:'s' %}selected{% endif %}>
+                  {{ f.get_full_name|default:f.username }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Atualizar</button>
+        </div>
+      </form>
+
+      <div class="metric-grid">
+        <div class="table-wrapper">
+          <table class="results-table">
+            <thead>
+              <tr><th>Mês</th><th>Total a Fazer</th><th>Total Feito</th><th>Percentual</th></tr>
+            </thead>
+            <tbody>
+              {% for item in metricas_meses %}
+              <tr>
+                <td>{{ item.mes }}</td>
+                <td>{{ item.total_afazer }}</td>
+                <td>{{ item.total_feito }}</td>
+                <td>{{ item.percentual }}%</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" style="text-align:center;">Nenhum dado encontrado.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-box">
+          <div id="chartMes" class="chart"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. MÉTRICAS POR CLASSE -->
+    <section class="card metric-card" id="metricas-classe">
+      <h2 class="metric-title">MÉTRICAS POR CLASSE</h2>
+      <form method="GET" action="#metricas-classe" class="filter-form">
+        <div class="metric-filters">
+          <div class="form-group">
+            <label>ANO</label>
+            <select name="ano">
+              {% for ano in anos_disponiveis %}
+                <option value="{{ ano }}" {% if ano == f_ano %}selected{% endif %}>{{ ano }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>CLASSE</label>
+            <select name="classe">
+              <option value="todas" {% if f_classe == 'todas' %}selected{% endif %}>Todas</option>
+              {% for c in classes_disponiveis %}
+                <option value="{{ c }}" {% if f_classe == c %}selected{% endif %}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>FISCAL</label>
+            <select name="fiscal">
+              <option value="todos" {% if f_fiscal == 'todos' %}selected{% endif %}>Todos</option>
+              {% for f in fiscais %}
+                <option value="{{ f.id }}" {% if f_fiscal == f.id|stringformat:'s' %}selected{% endif %}>
+                  {{ f.get_full_name|default:f.username }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Atualizar</button>
+        </div>
+      </form>
+
+      <div class="metric-grid">
+        <div class="table-wrapper">
+          <table class="results-table">
+            <thead>
+              <tr><th>Classe</th><th>Total por Classe</th><th>Inspecionados no Ano</th><th>Percentual</th></tr>
+            </thead>
+            <tbody>
+              {% for item in metricas_classe %}
+              <tr>
+                <td>{{ item.classe }}</td>
+                <td>{{ item.total }}</td>
+                <td>{{ item.inspecionados }}</td>
+                <td>{{ item.percentual }}%</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" style="text-align:center;">Nenhum dado encontrado.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-box">
+          <div id="chartClasse" class="chart"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card metric-card" id="metricas-pendencia">
+      <h2 class="metric-title">MÉTRICAS POR PENDÊNCIA</h2>
+      <form method="get" action="#metricas-pendencia" class="filter-form">
+        <input type="hidden" name="risco" value="{{ f_risco }}">
+        <input type="hidden" name="mes" value="{{ f_mes }}">
+        <input type="hidden" name="quadrimestre" value="{{ f_quadrimestre }}">
+        <div class="metric-filters">
+          <div class="form-group">
+            <label for="pendencias-ano">Ano</label>
+            <select id="pendencias-ano" name="ano">
+              {% for ano in anos_disponiveis %}<option value="{{ ano }}" {% if ano == f_ano %}selected{% endif %}>{{ ano }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pendencias-classe">Classe</label>
+            <select id="pendencias-classe" name="classe">
+              <option value="todas" {% if f_classe == 'todas' %}selected{% endif %}>Todas</option>
+              {% for classe in classes_pendencias %}<option value="{{ classe }}" {% if classe == f_classe %}selected{% endif %}>{{ classe }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pendencias-fiscal">Fiscal</label>
+            <select id="pendencias-fiscal" name="fiscal">
+              <option value="todos" {% if f_fiscal == 'todos' %}selected{% endif %}>Todos</option>
+              {% for fiscal in fiscais %}<option value="{{ fiscal.pk }}" {% if f_fiscal == fiscal.pk|stringformat:'s' %}selected{% endif %}>{{ fiscal.get_full_name|default:fiscal.username }}</option>{% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Atualizar</button>
+        </div>
+      </form>
+      <div class="metric-grid">
+        <div class="table-wrapper">
+        <table class="results-table">
+          <thead>
+            <tr><th>Ação</th><th>Com pendência no histórico</th><th>Com conclusão posterior</th><th>Sem conclusão posterior</th></tr>
+          </thead>
+          <tbody>
+            {% for item in metricas_pendencias %}
+            <tr>
+              <td>{{ item.acao }}</td>
+              <td>{{ item.pendentes }}</td>
+              <td>{{ item.concluidos }}</td>
+              <td>{{ item.sem_conclusao }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </div>
+        <div class="chart-box">
+          <div id="chartPendencias" class="chart"></div>
+        </div>
+      </div>
+      <details class="metric-help">
+        <summary>Como os dados são contados</summary>
+        <p>Cada estabelecimento conta uma vez por ação. Considera ações aplicadas com status “Pendente” e, em uma inspeção posterior, a mesma ação com status “Concluído”. Apenas inspeções com data de realização entram na comparação; na mesma data, vale a ordem dos registros.</p>
+        <p>O status “A fazer” não entra como “Pendente”. Uma conclusão posterior indica uma ocorrência no histórico, mesmo que tenham surgido novas pendências depois. O ano filtra a data da inspeção que registrou a pendência; a conclusão posterior pode ocorrer em qualquer ano seguinte ou no próprio ano. Classe e fiscal são os atuais do estabelecimento. Inclui cadastros ativos e inativos.</p>
+      </details>
+    </section>
+
+{% endblock %}
+{% block scripts %}
+  <!-- TRANSMISSÃO SEGURA DE DADOS VIA TAG JSON_SCRIPT DO DJANGO -->
+  {{ metricas_pendencias|json_script:"js-metricas-pendencias" }}
+  {{ metricas_ano|json_script:"js-metricas-ano" }}
+  {{ metricas_risco|json_script:"js-metricas-risco" }}
+  {{ metricas_quadrimestre|json_script:"js-chart-quad" }}
+  {{ metricas_meses|json_script:"js-chart-mes" }}
+  {{ metricas_classe|json_script:"js-metricas-classe" }}
+
+  <script defer src="{% static 'register/js/estatisticas.js' %}?v=8"></script>
+{% endblock %}

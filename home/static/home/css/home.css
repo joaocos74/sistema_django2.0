@@ -1,0 +1,348 @@
+/* ==========================================
+   1. RESET & VARIÁVEIS GLOBAIS
+   ========================================== */
+:root {
+    --primary-color: #169b5b;
+    --primary-color-hover: #12804b;
+    --bg-body: #f0f2f5;
+    --bg-card: #ffffff;
+    --border-color: #d0d7de;
+    --text-color: #222222;
+    --muted-text: #6b7280;
+    --font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-color);
+}
+
+/* ==========================================
+   2. NAVBAR & CABEÇALHO
+   ========================================== */
+.navbar {
+    background: #f5f6f7;
+    border-bottom: 1px solid #ddd;
+}
+
+.navbar-top {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.navbar-logo img {
+    height: 60px;
+    display: block;
+}
+
+.navbar-search {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: #e3e6ea;
+    border-radius: 4px;
+    overflow: hidden;
+    max-width: 500px;
+}
+
+.navbar-search input {
+    flex: 1;
+    border: none;
+    padding: 8px 10px;
+    background: transparent;
+    font-size: 13px;
+    outline: none;
+}
+
+.navbar-search button {
+    border: none;
+    background: transparent;
+    padding: 0 12px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.navbar-user {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #333333;
+}
+
+.form-logout {
+    margin: 0;
+}
+
+.navbar-login {
+    background: #ffffff;
+    color: #da0505;
+    border-radius: 4px;
+    border: 1px solid #ee9393;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+.navbar-login:hover {
+    background: #c40000;
+    color: #ffffff;
+    border-color: #c40000;
+}
+
+/* MENU DE NAVEGAÇÃO */
+.navbar-menu {
+    background: #ffffff;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    padding: 10px 0;
+}
+
+.navbar-link {
+    color: #000000;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    transition: color 0.2s ease;
+}
+
+.navbar-link .icon i {
+    font-size: 20px;
+    width: 26px;
+    text-align: center;
+    color: var(--primary-color);
+    transition: color 0.2s ease;
+}
+
+.navbar-link:hover .icon i {
+    color: var(--primary-color-hover);
+}
+
+.navbar-link:hover {
+    color: #000000;
+}
+
+/* ==========================================
+   3. LAYOUT PRINCIPAL & CARDS
+   ========================================== */
+.main-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 16px;
+}
+
+.card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+.card-title {
+    margin: 0 0 14px 0;
+    font-size: 15px;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.icon-warning {
+    color: #e07a00;
+}
+
+/* ==========================================
+   4. QUADRO DE PENDÊNCIAS
+   ========================================== */
+.pendencias-board {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 8px 4px 4px;
+    min-height: 60px;
+}
+
+.pendencias-vazio {
+    color: var(--muted-text);
+    font-size: 14px;
+    padding: 10px 0;
+}
+
+.pend-postit {
+    width: 200px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transform: rotate(-0.8deg);
+    font-size: 13px;
+    line-height: 1.35;
+    text-decoration: none;
+    color: #1f2937;
+    display: block;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.pend-postit:hover {
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    transform: rotate(0deg) translateY(-2px);
+}
+
+.pend-postit strong {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    opacity: 0.75;
+}
+
+.pend-postit span {
+    font-size: 13px;
+    word-break: break-word;
+}
+
+.pend-postit .pend-badge {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.10);
+}
+
+/* ==========================================
+   5. GRID DA MINI AGENDA
+   ========================================== */
+.board--mini {
+    width: 100%;
+    overflow-x: auto;
+    padding-top: 8px;
+}
+
+.week-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    min-width: 650px;
+}
+
+.day-col--mini {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.day-head {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 6px;
+    text-align: center;
+}
+
+.day-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.slot--mini {
+    min-height: 55px;
+    background: #ffffff;
+    border: 1px dashed #d1d5db;
+    border-radius: 6px;
+    padding: 6px;
+}
+
+.slot--mini::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 10px;
+    color: #9ca3af;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.postit--mini {
+    border-radius: 6px;
+    padding: 6px;
+    font-size: 11px;
+    margin-bottom: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.postit--mini.feito {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+.postit--mini .texto {
+    word-break: break-word;
+}
+
+/* ==========================================
+   6. RESPONSIVIDADE
+   ========================================== */
+@media (max-width: 768px) {
+    .navbar-top {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .navbar-search {
+        width: 100%;
+        max-width: 100%;
+        order: 3;
+    }
+
+    .navbar-menu {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+}
+/* Identificação do autor na Mini Agenda */
+.postit--mini .autor-mini {
+    font-size: 9px;
+    font-weight: 600;
+    opacity: 0.65;
+    margin-bottom: 3px;
+}
+
+.navbar-link svg, .navbar-search svg { width: 24px; height: 24px; fill: none; stroke: var(--primary-color); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.navbar-menu { flex-wrap: wrap; padding: 14px 16px; }
+.navbar-search input { min-width: 0; }
+.navbar-search button { display: flex; align-items: center; }
+.navbar-user { text-decoration: none; overflow-wrap: anywhere; max-width: 250px; }
+.home-section-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.home-section-header .card-title { margin: 0; }
+.agenda-link { color: var(--primary-color-hover); font-size: 13px; }
+.agenda-status { font-size: 13px; color: var(--muted-text); }
+.postit--mini .texto { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 140px; overflow-y: auto; font-size: 12px; }
+.postit--mini { color: #1f2937; }
+.board--mini { scrollbar-width: thin; }
+a:focus-visible, button:focus-visible, .board--mini:focus-visible, input:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 3px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 768px) { .navbar-user { margin-left: 0; } .navbar-search { flex-basis: 100%; } .card { padding: 16px; } }

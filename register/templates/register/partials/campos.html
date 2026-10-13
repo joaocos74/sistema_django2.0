@@ -1,0 +1,20 @@
+{% if form.errors %}<div class="alert alert-error" role="alert">Confira os campos indicados abaixo.</div>{% endif %}
+{{ form.non_field_errors }}
+<p>Os campos marcados com * são obrigatórios.</p>
+{% for secao in form.analysis_sections %}
+<details class="card card--section analysis-panel" {% if secao.aberto %}open{% endif %}>
+    <summary class="card__header">{{ secao.titulo }} <span class="panel-hint">Ver mais / recolher</span></summary>
+    <div class="card__body">
+        {% if secao.titulo == 'Responsável pelo Estabelecimento' %}<p>Nesta seção, os campos com * são obrigatórios se você cadastrar um responsável.</p>{% endif %}
+        <div class="form-grid-2">
+            {% for field in secao.campos %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required or field.field.required_on_fill %} *{% endif %}</label>
+                {{ field }}{{ field.errors }}
+                {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</details>
+{% endfor %}

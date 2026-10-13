@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Entrar — Vigilância Sanitária</title>
+    <link rel="stylesheet" href="{% static 'usuarios/css/login.css' %}?v=2">
+</head>
+<body>
+<main class="login-entorno">
+    <section class="login-cartao">
+        <div class="logo"><img src="{% static 'register/img/logo.png' %}" alt="Vigilância Sanitária de Taiobeiras"></div>
+        <h2>Entrar</h2>
+        {% for message in messages %}<p class="mensagem-sucesso" role="status">{{ message }}</p>{% endfor %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }} *</label>
+                {{ field }}{{ field.errors }}
+            </div>
+            {% endfor %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="btn-entrar">Entrar</button>
+        </form>
+        <div class="divider"><span>OU</span></div>
+        <a href="{% url 'usuarios:cadastrar' %}" class="btn-cadastrar">Cadastrar</a>
+    </section>
+</main>
+</body>
+</html>

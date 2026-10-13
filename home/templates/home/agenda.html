@@ -1,0 +1,28 @@
+{% extends 'register/base.html' %}
+{% load static %}
+{% block title %}Agenda semanal{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'home/css/agenda.css' %}?v=2">{% endblock %}
+{% block actions %}
+<a href="{% url 'home:index' %}" class="btn btn-secundary"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar</a>
+<button type="button" class="btn btn-secundary" id="agenda-imprimir">Imprimir</button>
+<button type="button" class="btn btn-primary" id="btn-recarregar">Recarregar</button>
+{% endblock %}
+{% block content %}
+<h2>Agenda da semana</h2>
+<p>Todos podem consultar os lembretes. O autor e o administrador podem editar, mover, concluir e apagar. Para mover, arraste o lembrete ou altere a data e o turno em Editar.</p>
+<p id="agenda-status" role="status">Carregando agenda…</p>
+<div class="board" id="agenda-grid" data-semana-url="{% url 'home:api_agenda_semana_atual' %}" data-usuarios-url="{% url 'home:api_usuarios' %}" data-criar-url="{% url 'home:api_agenda_criar' %}" data-admin="{{ request.user.is_superuser|yesno:'true,false' }}"></div>
+<noscript>Ative o JavaScript para consultar e editar a agenda.</noscript>
+<dialog id="modal-postit" aria-labelledby="modal-titulo">
+  <form id="agenda-form">
+    {% csrf_token %}
+    <h3 id="modal-titulo">Lembrete</h3>
+    <p>Use @usuário, @primeironome (se único) ou @todos para mencionar pessoas.</p>
+    <div class="form-group"><label for="modal-dia">Data *</label><input type="date" id="modal-dia" required></div>
+    <div class="form-group"><label for="modal-turno">Turno *</label><select id="modal-turno" required><option value="manha">Manhã</option><option value="tarde">Tarde</option></select></div>
+    <div class="form-group"><label for="modal-input-texto">Texto *</label><textarea id="modal-input-texto" rows="5" maxlength="3000" placeholder="Digite a tarefa ou aviso…" required></textarea></div>
+    <div class="modal-buttons"><button type="button" class="btn btn-secundary" id="modal-btn-cancelar">Cancelar</button><button type="button" class="btn btn-primary" id="modal-btn-salvar">Salvar</button></div>
+  </form>
+</dialog>
+{% endblock %}
+{% block scripts %}<script defer src="{% static 'home/js/agenda.js' %}"></script>{% endblock %}

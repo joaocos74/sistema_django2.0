@@ -1,0 +1,87 @@
+{% extends 'register/base.html' %}
+{% load static %}
+{% block title %}Analisar — {{ estabelecimento.nome_fantasia }}{% endblock %}
+{% block actions %}
+<a href="{% url 'register_view:pesquisar' %}" class="btn btn-secundary">Voltar</a>
+<button type="button" class="btn btn-tertiary" id="imprimir">Imprimir</button>
+{% if pode_editar %}<button type="submit" form="form-editar" class="btn btn-primary">Salvar</button>{% endif %}
+{% endblock %}
+{% block content %}
+<h2>{{ estabelecimento.nome_fantasia }} — Cadastro #{{ estabelecimento.id }}</h2>
+{% if not pode_editar %}<div class="alert alert-info">Somente leitura. A edição está disponível para o fiscal responsável e o administrador.</div>{% endif %}
+<form id="form-editar" method="post">
+    {% csrf_token %}
+    <fieldset {% if not pode_editar %}disabled{% endif %} class="edit-fields">
+        {% include 'register/partials/campos.html' %}
+        <details class="card analysis-panel" open>
+            <summary class="card__header">Situação do cadastro <span class="panel-hint">Ver mais / recolher</span></summary>
+            <div class="card__body form-group"><label for="{{ form.ativo.id_for_label }}">{{ form.ativo.label }} *</label>{{ form.ativo }}{{ form.ativo.errors }}</div>
+        </details>
+        {{ inspecao_form.non_field_errors }}
+        {% for titulo, campos in inspecao_form.sections %}
+        <details class="card analysis-panel" open>
+            <summary class="card__header">{{ titulo }} <span class="panel-hint">Ver mais / recolher</span></summary>
+            <div class="card__body">
+                <div class="form-grid-2">
+                    {% for field in campos %}<div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                        {{ field }}{{ field.errors }}
+                        {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                    </div>{% endfor %}
+                </div>
+            </div>
+        </details>
+        {% endfor %}
+    </fieldset>
+</form>
+<details class="card analysis-panel" open>
+    <summary class="card__header">Documentos <span class="panel-hint">Ver mais / recolher</span></summary>
+    <div class="card__body">
+        {% if pode_editar %}
+        <form method="post" enctype="multipart/form-data" class="document-upload">
+            {% csrf_token %}
+            <div class="form-grid-2">
+                <div class="form-group"><label for="tipo_documento">Tipo de documento *</label><select id="tipo_documento" name="tipo_documento" required>
+                    {% for value, label in tipos_documento %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+                </select></div>
+                <div class="form-group"><label for="doc_nome">Nome *</label><input id="doc_nome" name="doc_nome" maxlength="255" placeholder="Ex.: Alvará sanitário" required></div>
+                <div class="form-group"><label for="doc_arquivo">Arquivo *</label><input type="file" id="doc_arquivo" name="doc_arquivo" required></div>
+            </div>
+            <button type="submit" name="btn_upload_doc" class="btn btn-primary">Anexar documento</button>
+        </form>
+        {% endif %}
+        <div class="table-wrapper"><table class="table">
+            <thead><tr><th>Tipo</th><th>Nome</th><th>Enviado por</th><th>Data</th><th>Arquivo</th>{% if pode_editar %}<th>Ação</th>{% endif %}</tr></thead>
+            <tbody>{% for doc in documentos %}<tr>
+                <td>{{ doc.get_tipo_documento_display }}</td><td>{{ doc.nome }}</td><td>{{ doc.enviado_por.get_full_name|default:doc.enviado_por.username }}</td><td>{{ doc.data_envio|date:'d/m/Y' }}</td>
+                <td><a href="{% url 'register_view:baixar_documento' doc.pk %}">Baixar</a></td>
+                {% if pode_editar %}<td><form method="post" data-confirm="Excluir este documento?">{% csrf_token %}<input type="hidden" name="excluir_doc_id" value="{{ doc.pk }}"><button class="btn btn-secundary" type="submit">Excluir</button></form></td>{% endif %}
+            </tr>{% empty %}<tr><td colspan="6">Nenhum documento anexado.</td></tr>{% endfor %}</tbody>
+        </table></div>
+    </div>
+</details>
+<details class="card analysis-panel">
+    <summary class="card__header">Situação de cada ação por inspeção <span class="panel-hint">Ver mais / recolher</span></summary>
+    <div class="card__body table-wrapper"><table class="table">
+        <thead><tr><th>Fiscal</th><th>Data de realização</th><th>Plano de trabalho</th><th>Termo de ciência</th><th>Interdição</th><th>Processo</th></tr></thead>
+        <tbody>{% for item in historico_vigilancias %}<tr>
+            <td>{{ item.fiscal.get_full_name|default:item.fiscal.username }}</td>
+            <td>{{ item.data_realizacao|date:'d/m/Y'|default:'—' }}</td>
+            <td>{% if item.plano_aplicado == 'aplicado' %}{{ item.get_plano_status_display|default:'Sem status' }}{% else %}Não requerido{% endif %}</td>
+            <td>{% if item.termo_ciencia == 'aplicado' %}{{ item.get_termo_status_display|default:'Sem status' }}{% else %}Não requerido{% endif %}</td>
+            <td>{% if item.interdicao == 'aplicado' %}{{ item.get_interdicao_status_display|default:'Sem status' }}{% else %}Não requerido{% endif %}</td>
+            <td>{% if item.processo == 'aplicado' %}{{ item.get_processo_status_display|default:'Sem status' }}{% else %}Não requerido{% endif %}</td>
+        </tr>{% empty %}<tr><td colspan="6">Nenhuma inspeção registrada.</td></tr>{% endfor %}</tbody>
+    </table></div>
+</details>
+<details class="card analysis-panel">
+    <summary class="card__header">Histórico de classificações <span class="panel-hint">Ver mais / recolher</span></summary>
+    <div class="card__body table-wrapper"><table class="table">
+        <thead><tr><th>Registro</th><th>Risco</th><th>CNAE principal</th><th>CNAE secundária</th><th>Classe</th></tr></thead>
+        <tbody>{% for item in historico_tipos %}<tr><td>{{ item.created_at|date:'d/m/Y H:i' }}</td><td>{{ item.get_risco_display }}</td><td>{{ item.cnae_principal }}</td><td>{{ item.cnae_secundaria|default:'—' }}</td><td>{{ item.classe }}</td></tr>
+        {% empty %}<tr><td colspan="5">Nenhuma classificação registrada.</td></tr>{% endfor %}</tbody>
+    </table></div>
+</details>
+
+{% endblock %}
+{% block scripts %}<script src="{% static 'register/js/analisar.js' %}" defer></script>{% endblock %}

@@ -1,0 +1,153 @@
+{% extends 'register/base.html' %}
+{% block title %}Pesquisar estabelecimentos{% endblock %}
+{% block content %}
+        <!-- FILTROS DE PESQUISA -->
+        <section class="card card--section">
+            <header class="card__header">
+                <h2>Pesquisar Estabelecimentos</h2>
+            </header>
+            <div class="card__body">
+                <form id="search-form" method="GET" action="{% url 'register_view:pesquisar' %}">
+                    <div class="form-grid-2">
+
+                        <div class="form-group">
+                            <label for="id">ID</label>
+                            <input type="text" id="id" name="id" placeholder="ID" value="{{ request.GET.id }}" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cnpj">CNPJ / CPF</label>
+                            <input type="text" id="cnpj" name="cnpj" placeholder="CNPJ ou CPF" value="{{ request.GET.cnpj }}" class="form-control">
+                        </div>
+
+                        <div class="form-group form-group--full">
+                            <label for="nome_fantasia">Nome Fantasia</label>
+                            <input type="text" id="nome_fantasia" name="nome_fantasia" placeholder="Nome Fantasia" value="{{ request.GET.nome_fantasia }}" class="form-control">
+                        </div>
+
+                        <div class="form-group form-group--full">
+                            <label for="razao_social">Razão Social</label>
+                            <input type="text" id="razao_social" name="razao_social" placeholder="Razão Social" value="{{ request.GET.razao_social }}" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endereco">Endereço</label>
+                            <input type="text" id="endereco" name="endereco" placeholder="Endereço" value="{{ request.GET.endereco }}" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" id="bairro" name="bairro" placeholder="Ex: Centro" value="{{ request.GET.bairro }}" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="inspecao_mes">Inspeção realizada ou prevista (Mês/Ano)</label>
+                            <input type="month" id="inspecao_mes" name="inspecao_mes" value="{{ request.GET.inspecao_mes }}" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="alvara_mes">Data do alvará (Mês/Ano)</label>
+                            <input type="month" id="alvara_mes" name="alvara_mes" value="{{ request.GET.alvara_mes }}" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fiscal_responsavel">Fiscal Responsável</label>
+                            <select id="fiscal_responsavel" name="fiscal_responsavel" class="form-control">
+                                <option value="">Todos os Fiscais</option>
+                                {% for fiscal in fiscais %}
+                                    <option value="{{ fiscal.id }}" {% if request.GET.fiscal_responsavel == fiscal.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ fiscal.get_full_name|default:fiscal.username }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="status">Status da Inspeção</label>
+                            <select id="status" name="inspecao_status" class="form-control">
+                                <option value="">Todos os Status</option>
+                                <option value="a_fazer" {% if request.GET.inspecao_status == 'a_fazer' %}selected{% endif %}>A fazer</option>
+                                <option value="concluido" {% if request.GET.inspecao_status == 'concluido' %}selected{% endif %}>Concluído</option>
+                                <option value="pendente" {% if request.GET.inspecao_status == 'pendente' %}selected{% endif %}>Pendente</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group"><label for="risco">Risco</label><select id="risco" name="risco"><option value="">Todos os riscos</option>{% for value, label in riscos %}<option value="{{ value }}" {% if request.GET.risco == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+                        <div class="form-group"><label for="classe">Classe</label><input id="classe" name="classe" value="{{ request.GET.classe }}" placeholder="Ex.: SUPERMERCADO"></div>
+                        <div class="form-group form-group--full">
+                            <label for="ativo">Status do Cadastro</label>
+                            <select id="ativo" name="ativo" class="form-control">
+                                <option value="">Todos</option>
+                                <option value="1" {% if request.GET.ativo == '1' %}selected{% endif %}>Ativo</option>
+                                <option value="0" {% if request.GET.ativo == '0' %}selected{% endif %}>Inativo</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div style="display:flex; justify-content: flex-end; gap:10px; padding-top: 15px;">
+                        <a href="{% url 'register_view:pesquisar' %}" class="btn btn-secundary">Limpar Filtros</a>
+                        <button type="submit" class="btn btn-primary">Pesquisar</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- TABELA DE RESULTADOS -->
+        <section class="card card--results">
+            <header class="card__header">
+                <h2>
+                    Estabelecimentos encontrados:
+                    <span style="font-size:0.85em; font-weight:normal; color:#555;">
+                        ({{ estabelecimentos|length }} resultado(s) encontrado(s))
+                    </span>
+                </h2>
+            </header>
+
+            <div class="card__body">
+                {% if estabelecimentos %}
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome Fantasia</th>
+                                    <th>Última Inspeção</th>
+                                    <th>Alvará</th>
+                                    <th>Endereço / Bairro</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lic in estabelecimentos %}
+                                <!-- Aplica o fundo e texto vermelho para registros inativos -->
+                                <tr class="{% if lic.status %}row-inativo{% endif %}">
+                                    <td>{{ lic.id }}</td>
+                                    <td>
+                                        {{ lic.nome_fantasia }}<br><small>{{ lic.cnpj }}</small>
+                                    </td>
+                                    <td>{{ lic.ultima_vigilancia.data_realizacao|date:"d/m/Y"|default:"-" }}</td>
+                                    <td>{{ lic.ultima_vigilancia.data_alvara|date:"d/m/Y"|default:"-" }}</td>
+                                    <td>
+                                        {% if lic.logradouro %}
+                                            {{ lic.logradouro }}{% if lic.numero %}, {{ lic.numero }}{% endif %}{% if lic.bairro %} - {{ lic.bairro }}{% endif %}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'register_view:analisar' lic.id %}" class="btn-success">Analisar</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="empty" style="padding: 20px; text-align: center; color: #666;">Nenhum estabelecimento encontrado.</p>
+                {% endif %}
+            </div>
+        </section>
+
+{% endblock %}

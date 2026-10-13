@@ -1,0 +1,26 @@
+{% extends 'register/base.html' %}
+{% load static %}
+{% block title %}Usuários{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">{% endblock %}
+{% block actions %}<a class="btn btn-primary" href="{% url 'usuarios:cadastrar' %}">Cadastrar usuário</a>{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Usuários</h2>
+    <form method="get" class="usuario-actions">
+        <div class="form-group"><label for="busca">Pesquisar usuário</label><input id="busca" name="q" value="{{ busca }}" maxlength="150" placeholder="Nome, usuário ou e-mail"></div>
+        <button type="submit" class="btn btn-primary">Pesquisar</button>
+    </form>
+    <div class="table-wrapper"><table class="table usuarios-table">
+        <thead><tr><th>Usuário</th><th>Nome</th><th>E-mail</th><th>Situação</th><th>Administrador</th></tr></thead>
+        <tbody>{% for usuario in pagina %}<tr>
+            <td>{{ usuario.username }}</td><td>{{ usuario.get_full_name|default:'—' }}</td><td>{{ usuario.email|default:'—' }}</td>
+            <td>{{ usuario.is_active|yesno:'Ativo,Inativo' }}</td><td>{{ usuario.is_superuser|yesno:'Sim,Não' }}</td>
+        </tr>{% empty %}<tr><td colspan="5">Nenhum usuário encontrado.</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% if pagina.has_other_pages %}<nav class="pagination" aria-label="Páginas de usuários">
+        {% if pagina.has_previous %}<a href="?q={{ busca|urlencode }}&page={{ pagina.previous_page_number }}">Anterior</a>{% endif %}
+        <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+        {% if pagina.has_next %}<a href="?q={{ busca|urlencode }}&page={{ pagina.next_page_number }}">Próxima</a>{% endif %}
+    </nav>{% endif %}
+</section>
+{% endblock %}
