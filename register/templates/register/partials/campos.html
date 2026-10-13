@@ -3,7 +3,14 @@
 <p>Os campos marcados com * são obrigatórios.</p>
 {% for secao in form.analysis_sections %}
 <details class="card card--section analysis-panel" {% if secao.aberto %}open{% endif %}>
-    <summary class="card__header">{{ secao.titulo }} <span class="panel-hint">Ver mais / recolher</span></summary>
+    <summary class="card__header">
+        {{ secao.titulo }}
+        {% if estabelecimento and forloop.first %}
+        <span class="info-header-badge">ID: <strong>{{ estabelecimento.id }}</strong></span>
+        {% else %}
+        <span class="panel-hint">Ver mais / recolher</span>
+        {% endif %}
+    </summary>
     <div class="card__body">
         {% if secao.titulo == 'Responsável pelo Estabelecimento' %}<p>Nesta seção, os campos com * são obrigatórios se você cadastrar um responsável.</p>{% endif %}
         <div class="form-grid-2">

@@ -29,7 +29,7 @@ async function api(url, opts = {}) {
 }
 
 // Função que gerencia o Modal Customizado na tela
-function pedirTextoModal(titulo, textoInicial = "", dia = "", turno = "manha") {
+function pedirTextoModal(titulo, textoInicial = "", dia = "", turno = "manha", editar = false) {
   return new Promise((resolve) => {
     const modal = document.getElementById("modal-postit");
     const modalTitulo = document.getElementById("modal-titulo");
@@ -41,6 +41,7 @@ function pedirTextoModal(titulo, textoInicial = "", dia = "", turno = "manha") {
     inputTexto.value = textoInicial;
     document.getElementById('modal-dia').value = dia;
     document.getElementById('modal-turno').value = turno;
+    document.getElementById('modal-agendamento').hidden = !editar;
     modal.showModal();
     inputTexto.focus();
 
@@ -339,7 +340,7 @@ async function carregar() {
 async function criarPostit(diaIso, turno) {
   try {
     const turnoTexto = turno === 'manha' ? 'Manhã' : 'Tarde';
-    const valores = await pedirTextoModal(`Novo lembrete (${turnoTexto})`, "", diaIso, turno);
+    const valores = await pedirTextoModal(`Novo Post-it (${turnoTexto})`, "", diaIso, turno);
     const texto = valores?.texto;
     
     if (!texto || !texto.trim()) return;
@@ -362,7 +363,7 @@ async function criarPostit(diaIso, turno) {
 async function editarPostit(id, textoAtual) {
   try {
     const item = itensPorId.get(id);
-    const valores = await pedirTextoModal("Editar lembrete", textoAtual, item.dia, item.turno);
+    const valores = await pedirTextoModal("Editar Post-it", textoAtual, item.dia, item.turno, true);
     const novoTexto = valores?.texto;
     if (!novoTexto || !novoTexto.trim()) return;
 

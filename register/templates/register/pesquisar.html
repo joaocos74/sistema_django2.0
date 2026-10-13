@@ -125,7 +125,7 @@
                                 <tr class="{% if lic.status %}row-inativo{% endif %}">
                                     <td>{{ lic.id }}</td>
                                     <td>
-                                        {{ lic.nome_fantasia }}<br><small>{{ lic.cnpj }}</small>
+                                        {{ lic.nome_fantasia }}
                                     </td>
                                     <td>{{ lic.ultima_vigilancia.data_realizacao|date:"d/m/Y"|default:"-" }}</td>
                                     <td>{{ lic.ultima_vigilancia.data_alvara|date:"d/m/Y"|default:"-" }}</td>

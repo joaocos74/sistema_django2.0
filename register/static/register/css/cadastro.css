@@ -1,3 +1,5 @@
+@import url("buttons.css");
+
 :root {
     --primary-color: #169b5b;
     --primary-dark: #0b472a;
@@ -174,56 +176,6 @@ html, body {
 /* ========================= */
 /* BOTÕES */
 /* ========================= */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 16px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    border-radius: 4px;
-    border: 1px solid transparent;
-    text-decoration: none;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    color: #ffffff;
-    border-color: var(--primary-color);
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-dark);
-    border-color: var(--primary-dark);
-}
-
-.btn-secundary {
-    background-color: #ffffff;
-    color: var(--text-color);
-    border-color: var(--border-color);
-}
-
-.btn-secundary:hover {
-    background-color: var(--secundary-color);
-    color: #ffffff;
-    border-color: var(--secundary-color);
-}
-
-.btn-tertiary {
-    background-color: #ffffff;
-    color: var(--text-color);
-    border-color: var(--border-color);
-}
-
-.btn-tertiary:hover {
-    background-color: var(--tertiary-color);
-    color: #ffffff;
-    border-color: var(--tertiary-color);
-}
-
 /* ========================= */
 /* ALERTAS DO DJANGO */
 /* ========================= */

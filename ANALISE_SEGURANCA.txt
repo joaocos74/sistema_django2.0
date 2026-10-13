@@ -1,0 +1,67 @@
+ANÁLISE DE SEGURANÇA — 12/10/2026
+Estado avaliado: antes da implementação das apps Redesim e Denúncias.
+
+Revisão de código e testes locais com banco em memória e arquivos temporários.
+Nenhum cadastro ou documento real foi alterado. Este documento registra riscos
+para análise e correção posterior; não representa aprovação para produção.
+
+1. ALTA — Cadastro público libera acesso aos dados internos
+Qualquer pessoa pode criar uma conta ativa e entrar. Conta recém-criada acessou
+pesquisa, estatísticas, cadastro de estabelecimentos e usuários da agenda.
+Todos os autenticados consultam estabelecimentos; download exige apenas login.
+Correção proposta: cadastro pelo administrador ou aprovação antes do acesso.
+Referências: usuarios/views.py (cadastrar_view); register/views.py
+(_estabelecimentos_visiveis, baixar_documento_view).
+
+2. ALTA — Documentos sem autenticação em DEBUG
+app/urls.py publica MEDIA_ROOT em /media/ quando DEBUG=True. Um arquivo temporário
+foi acessado anonimamente com HTTP 200. Conhecer a URL permite contornar a view
+autenticada de download. Os caminhos dos documentos são previsíveis.
+Correção proposta: arquivos privados acessíveis apenas por rota autenticada e
+autorizada; não expor diretamente media no servidor de produção.
+
+3. ALTA — Upload sem política de formato e tamanho por arquivo
+Documento.arquivo não limita tamanho ou conteúdo. A validação aceita HTML.
+Com a publicação direta de /media/, HTML é servido inline no mesmo domínio,
+possibilitando conteúdo malicioso quando aberto. Uploads podem consumir disco.
+Correção proposta: limitar tamanho no servidor e aplicação; permitir apenas
+formatos necessários; validar conteúdo; servir como anexo e manter armazenamento
+privado. full_clean não verifica sozinho a segurança do conteúdo do arquivo.
+Referências: register/models.py (Documento); register/views.py (upload na análise).
+
+4. ALTA PARA PRODUÇÃO — Configuração de desenvolvimento
+manage.py check --deploy retornou seis avisos: DEBUG ligado, chave pública de
+desenvolvimento, ausência de SECURE_SSL_REDIRECT, SECURE_HSTS_SECONDS,
+SESSION_COOKIE_SECURE e CSRF_COOKIE_SECURE.
+A chave padrão atual destina-se exclusivamente ao desenvolvimento local.
+Correção proposta: chave privada, DEBUG=False, HTTPS, cookies seguros e HSTS
+configurado conforme a implantação. Conferir também proxy e servidor web.
+Referência: app/settings.py.
+
+5. MÉDIA — Ausência de limitação de tentativas na aplicação
+Não foi identificado controle de frequência ou bloqueio progressivo no login,
+cadastro ou login administrativo. Facilita tentativas de senha e contas abusivas.
+Correção proposta: proteção por conta e origem, considerando acessos legítimos.
+Não foram avaliadas proteções externas no servidor.
+Referência: usuarios/views.py (EntrarView, cadastrar_view), app/settings.py.
+
+6. MÉDIA — Autoria incorreta no histórico de classificação
+alterado_por recebe o fiscal responsável, mesmo se a alteração é executada por
+um administrador. Isso dificulta responsabilização e auditoria.
+Correção proposta: usar request.user como autor e preservar o fiscal em campo
+separado. Referências: register/views.py e register/admin.py (TipoAdmin).
+
+PROTEÇÕES OBSERVADAS
+- Exclusão de lembrete de outro usuário bloqueada com HTTP 403.
+- Listagem administrativa de usuários bloqueada para usuário comum com HTTP 403.
+- Criação de lembrete sem CSRF bloqueada com HTTP 403.
+- Verificações de edição dos estabelecimentos realizadas no servidor.
+
+PRIORIDADE PROPOSTA
+Restringir cadastro público e proteger documentos; depois tratar uploads,
+configuração de produção, tentativas de login e autoria do histórico.
+
+LIMITAÇÕES
+Não houve teste em servidor publicado nem auditoria de CVEs das dependências.
+Reavaliar os riscos após mudanças, inclusive novas apps e implantação.
+Fonte de apoio: https://docs.djangoproject.com/en/6.0/topics/security/

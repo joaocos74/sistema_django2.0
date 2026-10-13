@@ -26,4 +26,5 @@ button:disabled, select:disabled { cursor: not-allowed; opacity: .7; }
 .analysis-panel > summary:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
 .analysis-panel:not([open]) > summary { border-bottom: 0; }
 .panel-hint { float: right; font-weight: normal; font-size: .8rem; color: var(--muted-text); }
+.analysis-panel .info-header-badge { float: right; font-weight: normal; }
 @media print { .panel-hint { display: none; } }

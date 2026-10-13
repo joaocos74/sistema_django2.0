@@ -1,28 +1,40 @@
-{% extends 'register/base.html' %}
 {% load static %}
-{% block title %}Agenda semanal{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'home/css/agenda.css' %}?v=2">{% endblock %}
-{% block actions %}
-<a href="{% url 'home:index' %}" class="btn btn-secundary"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar</a>
-<button type="button" class="btn btn-secundary" id="agenda-imprimir">Imprimir</button>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agenda da Semana - VISA Taiobeiras</title>
+  <link rel="stylesheet" href="{% static 'home/css/home.css' %}">
+  <link rel="stylesheet" href="{% static 'home/css/agenda.css' %}?v=4">
+  <link rel="stylesheet" href="{% static 'register/css/buttons.css' %}">
+</head>
+<body>
+<header class="agenda-header">
+  <div class="navbar-logo"><img src="{% static 'register/img/logo.png' %}" alt="Logo VISA"></div>
+  <div class="page-header__title"><h1>VIGILÂNCIA SANITÁRIA DE TAIOBEIRAS</h1></div>
+  <div class="agenda-actions">
+<a href="{% url 'home:index' %}" class="btn btn-secundary">Voltar</a>
+<button type="button" class="btn btn-tertiary" id="agenda-imprimir">Imprimir</button>
 <button type="button" class="btn btn-primary" id="btn-recarregar">Recarregar</button>
-{% endblock %}
-{% block content %}
-<h2>Agenda da semana</h2>
-<p>Todos podem consultar os lembretes. O autor e o administrador podem editar, mover, concluir e apagar. Para mover, arraste o lembrete ou altere a data e o turno em Editar.</p>
+  </div>
+</header>
 <p id="agenda-status" role="status">Carregando agenda…</p>
-<div class="board" id="agenda-grid" data-semana-url="{% url 'home:api_agenda_semana_atual' %}" data-usuarios-url="{% url 'home:api_usuarios' %}" data-criar-url="{% url 'home:api_agenda_criar' %}" data-admin="{{ request.user.is_superuser|yesno:'true,false' }}"></div>
+<main class="board" id="agenda-grid" aria-label="Agenda da semana" data-semana-url="{% url 'home:api_agenda_semana_atual' %}" data-usuarios-url="{% url 'home:api_usuarios' %}" data-criar-url="{% url 'home:api_agenda_criar' %}" data-admin="{{ request.user.is_superuser|yesno:'true,false' }}"></main>
 <noscript>Ative o JavaScript para consultar e editar a agenda.</noscript>
 <dialog id="modal-postit" aria-labelledby="modal-titulo">
-  <form id="agenda-form">
+  <form id="agenda-form" class="modal-content">
     {% csrf_token %}
-    <h3 id="modal-titulo">Lembrete</h3>
-    <p>Use @usuário, @primeironome (se único) ou @todos para mencionar pessoas.</p>
-    <div class="form-group"><label for="modal-dia">Data *</label><input type="date" id="modal-dia" required></div>
-    <div class="form-group"><label for="modal-turno">Turno *</label><select id="modal-turno" required><option value="manha">Manhã</option><option value="tarde">Tarde</option></select></div>
-    <div class="form-group"><label for="modal-input-texto">Texto *</label><textarea id="modal-input-texto" rows="5" maxlength="3000" placeholder="Digite a tarefa ou aviso…" required></textarea></div>
+    <h3 id="modal-titulo">Novo Post-it</h3>
+    <p class="modal-subtitulo">Para vincular alguém, use @nome (ex.: @maria ou @todos)</p>
+    <div id="modal-agendamento" hidden>
+      <div class="form-group"><label for="modal-dia">Data *</label><input type="date" id="modal-dia" required></div>
+      <div class="form-group"><label for="modal-turno">Turno *</label><select id="modal-turno" required><option value="manha">Manhã</option><option value="tarde">Tarde</option></select></div>
+    </div>
+    <textarea id="modal-input-texto" aria-label="Texto do lembrete" rows="4" maxlength="3000" placeholder="Digite a tarefa ou aviso aqui..." required></textarea>
     <div class="modal-buttons"><button type="button" class="btn btn-secundary" id="modal-btn-cancelar">Cancelar</button><button type="button" class="btn btn-primary" id="modal-btn-salvar">Salvar</button></div>
   </form>
 </dialog>
-{% endblock %}
-{% block scripts %}<script defer src="{% static 'home/js/agenda.js' %}"></script>{% endblock %}
+<script defer src="{% static 'home/js/agenda.js' %}?v=4"></script>
+</body>
+</html>

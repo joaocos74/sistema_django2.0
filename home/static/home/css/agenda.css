@@ -1,41 +1,290 @@
-.board { max-width: 100%; min-width: 0; margin: 20px 0; }
-.week-grid { display: grid; grid-template-columns: repeat(6, minmax(210px, 1fr)); gap: 12px; overflow-x: auto; padding: 8px; }
-.day-col { min-width: 0; border: 1px solid var(--border-color); border-radius: 8px; background: #fff; }
-.day-head { padding: 12px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
-.day-title { font-weight: 600; font-size: 14px; }
-.day-actions { display: flex; gap: 6px; }
-.slot { border-top: 1px dashed var(--border-color); padding: 12px 6px; min-height: 160px; }
-.slot::before { content: attr(data-label); display: block; font-size: 12px; margin: 0 8px 10px; }
-.slot.dragover { outline: 2px dashed var(--primary-color); outline-offset: -3px; }
-.postit { padding: 12px; margin: 8px; border: 1px solid #0002; border-radius: 8px; color: #111827; background: #fef08a; }
-.postit[draggable=true] { cursor: grab; }
-.postit.feito .texto { text-decoration: line-through; }
-.postit .top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
-.postit .autor, .autor-mini { font-size: 11px; margin-bottom: 6px; }
-.postit .texto { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 180px; overflow: auto; font-size: 13px; }
-.icon-btn, .day-actions button { font: inherit; font-size: 12px; padding: 4px; cursor: pointer; border: 1px solid #0003; border-radius: 4px; background: #ffffffb3; }
-#modal-postit { border: 1px solid var(--border-color); border-radius: 10px; width: min(94vw, 500px); max-height: 90vh; padding: 24px; }
-#modal-postit::backdrop { background: #0008; }
-#modal-postit input, #modal-postit select, #modal-postit textarea { width: 100%; padding: 8px; font: inherit; }
-#modal-postit .form-group { margin-bottom: 14px; }
-.modal-buttons { display: flex; justify-content: flex-end; gap: 12px; }
-.home-agenda { margin-top: 24px; padding: 20px; }
-@media (max-width: 650px) { .week-grid { grid-template-columns: 1fr; } }
-@media print {
-  .week-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
-  .postit { print-color-adjust: exact; -webkit-print-color-adjust: exact; break-inside: avoid; }
-  .postit .texto { max-height: none; overflow: visible; }
-  .day-actions, .postit .top, #modal-postit { display: none; }
+:root{
+  --wood:#7a4b24;
+  --cork1:#caa77f;
+  --cork2:#b89268;
+
+  --page:#f4f6f8;
+  --panel: rgba(255,255,255,0.88);
+  --panelBorder: rgba(0,0,0,0.10);
+
+  --border: rgba(0,0,0,0.14);
+  --dash: rgba(0,0,0,0.18);
+  --text:#1f2937;
 }
 
-/* Quadro semanal e lembretes no estilo do projeto original. */
-.week-grid { background: #ffffffdf; border: 1px solid #0000001a; border-radius: 12px; padding: 12px; }
-.day-col { border-radius: 14px; background: #f9fafb; }
-.day-head { background: #ffffff8c; border-bottom: 1px solid #00000014; }
-.slot { min-height: 230px; }
-.slot::before { padding: 6px 10px; font-weight: 600; border: 1px solid #0000001a; border-radius: 8px; background: #ffffff8c; }
-.postit { border-radius: 12px; box-shadow: 0 6px 14px #0000001a; }
-.postit.feito { opacity: .65; }
-.day-actions button { padding: 6px 10px; border-radius: 8px; }
-@media (min-width: 651px) and (max-width: 1100px) { .week-grid { grid-template-columns: repeat(3, minmax(210px, 1fr)); } }
-@media print { .week-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+*{ box-sizing:border-box; }
+
+.card h3{
+  text-align: center;
+  margin:0 0 12px 0;
+  font-size:16px;
+  color:#111827;
+}
+
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: var(--page);
+  color: var(--text);
+}
+
+/* Header */
+.agenda-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.agenda-header h1{
+  margin:0;
+  font-size:18px;
+}
+
+.agenda-actions{
+  display:flex;
+  gap:10px;
+}
+
+/* Retângulo interno */
+.week-grid{
+  display:grid;
+  gap:12px;
+  background: var(--panel);
+  border: 1px solid var(--panelBorder);
+  border-radius: 12px;
+  padding: 12px;
+  grid-template-columns: repeat(6, minmax(220px, 1fr));
+  overflow-x:auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Coluna do dia */
+.day-col{
+  background: rgba(255,255,255,0.45);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  min-height:520px;
+  min-width: 220px;
+}
+
+.day-head{
+  padding:10px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.55);
+}
+
+.day-title{
+  font-weight:700;
+  font-size:14px;
+  color:#111827;
+}
+
+.day-actions button{
+  margin-left:6px;
+  padding:6px 10px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.92);
+  cursor:pointer;
+}
+
+.day-actions button:hover{
+  background: #fff;
+}
+
+/* Slots (manhã/tarde) */
+.slot{
+  position:relative;
+  padding:42px 10px 10px 10px;
+  min-height:230px;
+  border-top:1px dashed var(--dash);
+}
+
+.slot[data-turno="tarde"]{
+  min-height:250px;
+}
+
+.slot::before{
+  content: attr(data-label);
+  position:absolute;
+  left:10px;
+  right:10px;
+  top:10px;
+  font-size:12px;
+  font-weight:700;
+  color:#111827;
+  opacity:0.85;
+  padding:6px 10px;
+  border-radius:10px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(0,0,0,0.10);
+}
+
+.slot.dragover{
+  outline: 2px dashed rgba(37, 99, 235, 0.65);
+  outline-offset: -6px;
+  background: rgba(59,130,246,0.07);
+}
+
+/* Post-it */
+.postit{
+  margin:10px 8px;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,0.15);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.14);
+  cursor:grab;
+  transform: rotate(-0.6deg);
+  min-width: 0;
+}
+
+.postit:active{ cursor:grabbing; }
+
+.postit.feito{
+  opacity:0.65;
+  text-decoration: line-through;
+}
+
+.postit .top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+}
+
+.postit .autor{
+  font-size:12px;
+  opacity:0.75;
+  margin-bottom:6px;
+}
+
+.postit .texto{
+  font-size:14px;
+  line-height:1.25;
+  white-space:pre-wrap;
+  word-break: break-word;
+  overflow-wrap:anywhere;
+  max-height: 110px;
+  overflow:auto;
+}
+
+.icon-btn{
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  font-size:13px;
+  padding:4px 6px;
+  border-radius:8px;
+}
+
+.icon-btn:hover{
+  background: rgba(255,255,255,0.35);
+}
+
+@media (max-width: 1100px){
+  .week-grid{
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+    overflow-x: visible;
+  }
+}
+
+@media (max-width: 780px){
+  .board{
+    margin:10px;
+    padding:12px;
+  }
+  .week-grid{
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 520px){
+  .board{
+    margin:8px;
+    padding:10px;
+  }
+  .week-grid{
+    grid-template-columns: 1fr;
+  }
+  .day-col{
+    min-width: 0;
+  }
+}
+
+/* Estilos do Modal Customizado */
+.modal-content {
+  background: #ffffff;
+  padding: 22px;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  color: #111827;
+  text-align: left;
+}
+
+.modal-subtitulo {
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.modal-content textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 14px;
+  margin-bottom: 16px;
+  outline: none;
+}
+
+.modal-content textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+/* Adaptacao do modal original ao dialog nativo. */
+#modal-postit { margin: auto; padding: 0; border: 0; border-radius: 14px; width: min(90%, 420px); max-height: 90vh; }
+#modal-postit::backdrop { background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(2px); }
+#modal-postit .modal-content { width: 100%; }
+#modal-postit .form-group { margin-bottom: 14px; }
+#modal-postit label { display: block; margin-bottom: 6px; font-size: 13px; }
+#modal-postit input, #modal-postit select { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font: inherit; }
+#agenda-status:empty { display: none; }
+.week-grid { min-width: 0; }
+.postit { background: #fef08a; }
+.postit[draggable="false"], .postit[draggable="false"]:active { cursor: default; }
+.icon-btn:disabled { cursor: not-allowed; opacity: .5; }
+@media (max-width: 780px) {
+  .agenda-header { flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .agenda-header h1 { text-align: center; }
+}
+@media print {
+  .agenda-actions, .day-actions, .postit .top, .slot .btn, #modal-postit { display: none; }
+  .week-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
+  .day-col { min-width: 0; }
+  .postit { print-color-adjust: exact; -webkit-print-color-adjust: exact; break-inside: avoid; }
+  .postit .texto { max-height: none; overflow: visible; }
+}

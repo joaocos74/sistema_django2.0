@@ -156,42 +156,6 @@ body {
 /* ==========================================================================
    BOTÕES (PADRÃO DO SISTEMA)
    ========================================================================== */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 9px 18px;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: var(--radius-sm);
-  border: none;
-  cursor: pointer;
-  text-decoration: none;
-  transition: var(--transition);
-  height: 36px;
-  box-sizing: border-box;
-  white-space: nowrap;
-}
-
-.btn-primary {
-  background-color: var(--primary);
-  color: #ffffff;
-}
-
-.btn-primary:hover {
-  background-color: var(--primary-hover);
-}
-
-.btn-secundary {
-  background-color: var(--bg-input);
-  color: var(--text-main);
-}
-
-.btn-secundary:hover {
-  background-color: #e2e8f0;
-}
-
 /* ==========================================================================
    GRID DE MÉTRICAS (TABELA + GRÁFICO)
    ========================================================================== */
