@@ -17,6 +17,7 @@ app/local_settings.py
 media/
 arquivos_privados/
 backups/
+logs/
 staticfiles/
 *.log
 
