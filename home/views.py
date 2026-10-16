@@ -14,7 +14,7 @@ def home_view(request):
         fiscal=request.user, inspecao_status=Vigilancia.Status.A_FAZER,
         ano_previsto=hoje.year, mes_previsto=hoje.month,
         estabelecimento__status=False,
-    ).select_related('estabelecimento').order_by('estabelecimento__nome_fantasia', 'pk')
+    ).select_related('estabelecimento').order_by('estabelecimento__numero_pasta', 'pk')
     denuncias = Denuncia.objects.filter(
         fiscal_responsavel=request.user, status__in=['pendente', 'em_andamento'],
     ).order_by('data_criacao', 'pk')

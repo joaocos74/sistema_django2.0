@@ -5,6 +5,13 @@ from django.utils import timezone
 from .models import Estabelecimento, Responsavel, RTResponsavel, Tipo, Vigilancia
 
 
+class NumeroPastaForm(forms.Form):
+    numero_pasta = forms.IntegerField(
+        label='Número da pasta', min_value=1, max_value=9223372036854775807,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+    )
+
+
 class EstabelecimentoForm(forms.ModelForm):
     # Mantém os nomes de endereço já usados pela view de cadastro.
     campos_estab = (

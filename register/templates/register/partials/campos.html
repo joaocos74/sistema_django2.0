@@ -6,7 +6,7 @@
     <summary class="card__header">
         {{ secao.titulo }}
         {% if estabelecimento and forloop.first %}
-        <span class="info-header-badge">ID: <strong>{{ estabelecimento.id }}</strong></span>
+        <span class="info-header-badge">Pasta: <strong>{{ estabelecimento.numero_pasta }}</strong></span>
         {% else %}
         <span class="panel-hint">Ver mais / recolher</span>
         {% endif %}

@@ -10,7 +10,7 @@
             <ul class="pendencias-lista">
                 {% for item in inspecoes_pendentes %}
                 <li><a href="{% url 'register_view:analisar' item.estabelecimento_id %}">
-                    <span class="pendencias-texto"><strong>{{ item.estabelecimento.nome_fantasia }}</strong>
+                    <span class="pendencias-texto"><strong>Pasta {{ item.estabelecimento.numero_pasta }} · {{ item.estabelecimento.nome_fantasia }}</strong>
                     <small>{{ item.estabelecimento.logradouro }}{% if item.estabelecimento.numero %}, {{ item.estabelecimento.numero }}{% endif %}{% if item.estabelecimento.bairro %} · {{ item.estabelecimento.bairro }}{% endif %}</small></span>
                     <span class="pendencias-status">A fazer</span>
                     <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>

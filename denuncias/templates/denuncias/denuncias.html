@@ -16,7 +16,7 @@
     <input type="hidden" name="cnpj" value="{{ form.cnpj.value }}">
     {% endif %}
     {% if form.errors %}<div class="alert alert-error" role="alert">Confira os campos indicados abaixo. {{ form.non_field_errors }}{{ form.cadastro_id.errors }}</div>{% endif %}
-    {% if denuncia %}<p>Denúncia {{ denuncia.pk }} — {% if denuncia.estabelecimento_id %}<a href="{% url 'register_view:analisar' denuncia.estabelecimento_id %}">Cadastro {{ denuncia.estabelecimento_id }}</a>{% else %}Sem vínculo com cadastro{% endif %}</p>{% endif %}
+    {% if denuncia %}<p>Denúncia {{ denuncia.pk }} — {% if denuncia.estabelecimento_id %}<a href="{% url 'register_view:analisar' denuncia.estabelecimento_id %}">Pasta {{ denuncia.estabelecimento.numero_pasta }}</a>{% else %}Sem vínculo com cadastro{% endif %}</p>{% endif %}
     {% if not pode_editar %}<div class="alert alert-info">Somente leitura. O autor, o fiscal responsável e o administrador podem editar.</div>{% endif %}
     <fieldset class="edit-fields" {% if not pode_editar %}disabled{% endif %}>
         {% if not denuncia %}
@@ -52,11 +52,11 @@
     <header class="card__header"><h2>Histórico de Denúncias</h2></header>
     <div class="card__body">
         <div class="table-wrapper"><table class="table">
-            <thead><tr><th>ID</th><th>Data Denúncia</th><th>Razão Social</th><th>CNPJ / CPF</th><th>Tipo</th><th>Fiscal</th><th>Status</th><th>Cadastro</th><th>Ação</th></tr></thead>
+            <thead><tr><th>ID</th><th>Data Denúncia</th><th>Razão Social</th><th>CNPJ / CPF</th><th>Tipo</th><th>Fiscal</th><th>Status</th><th>Pasta</th><th>Ação</th></tr></thead>
             <tbody>{% for item in pagina %}<tr>
                 <td>{{ item.pk }}</td><td>{{ item.data_denuncia|date:'d/m/Y'|default:'—' }}</td><td>{{ item.razao_social }}</td><td>{{ item.cnpj }}</td><td>{{ item.tipo|default:'—' }}</td>
                 <td>{{ item.nome_fiscal }}</td><td>{% include 'denuncias/status.html' with denuncia=item %}</td>
-                <td>{% if item.estabelecimento_id %}<a href="{% url 'register_view:analisar' item.estabelecimento_id %}">{{ item.estabelecimento_id }}</a>{% else %}Sem vínculo{% endif %}</td>
+                <td>{% if item.estabelecimento_id %}<a href="{% url 'register_view:analisar' item.estabelecimento_id %}">{{ item.estabelecimento.numero_pasta }}</a>{% else %}Sem vínculo{% endif %}</td>
                 <td><a href="{% url 'denuncias:index' %}?editar={{ item.pk }}" class="btn btn-primary">Editar</a></td>
             </tr>{% empty %}<tr><td colspan="9">Nenhuma denúncia encontrada.</td></tr>{% endfor %}</tbody>
         </table></div>

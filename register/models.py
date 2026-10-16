@@ -5,6 +5,10 @@ import os
 
 
 class Estabelecimento(models.Model):
+    numero_pasta = models.PositiveBigIntegerField(
+        blank=True, verbose_name="Número da pasta", validators=[MinValueValidator(1)],
+        help_text="Identificação da pasta física. Em novos cadastros, deixe vazio para numerar automaticamente.",
+    )
     cnpj = models.CharField(
         max_length=18,
         verbose_name="CNPJ/CPF"
@@ -84,8 +88,44 @@ class Estabelecimento(models.Model):
     )
 
 
+    class Meta:
+        ordering = ('numero_pasta', 'pk')
+        constraints = [
+            models.UniqueConstraint(fields=['numero_pasta'], condition=models.Q(status=False),
+                                    name='pasta_unica_estabelecimento_ativo'),
+            models.CheckConstraint(condition=models.Q(numero_pasta__gte=1), name='pasta_numero_positivo'),
+        ]
+
+    def clean(self):
+        super().clean()
+        from .numeracao import validar_numero_pasta
+        validar_numero_pasta(self)
+
+    def save(self, *args, usuario=None, **kwargs):
+        from .numeracao import salvar_estabelecimento
+        return salvar_estabelecimento(self, args, kwargs, usuario)
+
     def __str__(self):
-        return f"{self.nome_fantasia}"
+        return f"Pasta {self.numero_pasta} — {self.nome_fantasia}"
+
+
+class SequenciaPasta(models.Model):
+    ultimo_numero = models.PositiveBigIntegerField(default=0)
+
+
+class HistoricoPasta(models.Model):
+    estabelecimento = models.ForeignKey(Estabelecimento, on_delete=models.CASCADE, related_name='historico_pastas')
+    numero_anterior = models.PositiveBigIntegerField(null=True, blank=True)
+    numero_novo = models.PositiveBigIntegerField()
+    inativo_anterior = models.BooleanField(null=True, blank=True)
+    inativo_novo = models.BooleanField()
+    alterado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-criado_em', '-pk')
+        verbose_name = 'histórico de pasta'
+        verbose_name_plural = 'históricos de pastas'
 
 
 class Tipo(models.Model):
@@ -204,7 +244,7 @@ class Responsavel(models.Model):
     )
 
     def __str__(self):
-        return f"Estabelecimento: #{self.estabelecimento_id} Responsável: {self.nome}"
+        return f"Pasta: {self.estabelecimento.numero_pasta} Responsável: {self.nome}"
 
 
 class RTResponsavel(models.Model):
@@ -283,7 +323,7 @@ class RTResponsavel(models.Model):
         verbose_name_plural = "responsáveis técnicos"
 
     def __str__(self):
-        return f"RT: {self.nome}\nEstabelecimento: {self.estabelecimento_id}"
+        return f"RT: {self.nome}\nPasta: {self.estabelecimento.numero_pasta}"
 
 
 class Vigilancia(models.Model):

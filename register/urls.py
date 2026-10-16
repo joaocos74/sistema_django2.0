@@ -6,6 +6,7 @@ from termos.views import documento
 app_name = 'register'
 
 urlpatterns = [
+    path('analisar/<int:pk>/pasta/', views.alterar_numero_pasta, name='alterar_numero_pasta'),
     path('estatisticas/consolidado.xlsx', exportar_consolidado, name='exportar_consolidado'),
     path('analisar/<int:pk>/notificacao/', documento, {'tipo': 'notificacao'}, name='notificacao'),
     path('analisar/<int:pk>/auto-termo/', documento, name='auto_termo'),

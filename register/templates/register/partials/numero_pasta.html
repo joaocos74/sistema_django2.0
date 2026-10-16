@@ -1,0 +1,21 @@
+<details class="card analysis-panel">
+    <summary class="card__header">Pasta {{ estabelecimento.numero_pasta }}{% if estabelecimento.status %} — estabelecimento inativo{% endif %}<span class="panel-hint">Numeração e histórico</span></summary>
+    <div class="card__body">
+        {% if request.user.is_superuser %}
+        <form method="post" action="{% url 'register_view:alterar_numero_pasta' estabelecimento.pk %}" class="document-upload">
+            {% csrf_token %}
+            <div class="form-group"><label for="{{ numero_pasta_form.numero_pasta.id_for_label }}">Número da pasta</label>{{ numero_pasta_form.numero_pasta }}</div>
+            <p>Você pode reutilizar a pasta de um estabelecimento inativo. Os vínculos e históricos continuam pertencendo a cada estabelecimento. Novos cadastros recebem o maior número de pasta entre os estabelecimentos ativos mais 1. Sem ativos, a numeração começa em 1.</p>
+            <button type="submit" class="btn btn-primary">Alterar número da pasta</button>
+        </form>
+        {% endif %}
+        <div class="table-wrapper"><table class="table">
+            <thead><tr><th>Data</th><th>Pasta anterior</th><th>Pasta atribuída</th><th>Situação</th><th>Alterado por</th></tr></thead>
+            <tbody>{% for item in historico_pastas %}<tr>
+                <td>{{ item.criado_em|date:'d/m/Y H:i' }}</td><td>{{ item.numero_anterior|default_if_none:'—' }}</td>
+                <td>{{ item.numero_novo }}</td><td>{{ item.inativo_novo|yesno:'Inativo,Ativo' }}</td>
+                <td>{% if item.alterado_por %}{{ item.alterado_por.get_full_name|default:item.alterado_por.username }}{% else %}Sistema{% endif %}</td>
+            </tr>{% empty %}<tr><td colspan="5">Nenhuma alteração registrada.</td></tr>{% endfor %}</tbody>
+        </table></div>
+    </div>
+</details>

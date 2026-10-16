@@ -1,6 +1,7 @@
 from django import forms
 
 class PadraoForm(forms.Form):
+    campo_numero_pasta = 'campo_03'
     autoridades_extras = forms.JSONField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -9,6 +10,8 @@ class PadraoForm(forms.Form):
             'autoridade_nome', 'autoridade_nome_2', 'campo_38_funcao_1',
             'campo_38_funcao_2', 'campo_38_dia', 'campo_38_mes', 'campo_38_ano', 'campo_38_hora']
         for nome in nomes:
+            if nome == self.campo_numero_pasta:
+                continue
             self.fields[nome] = forms.CharField(required=False, max_length=2000, strip=False)
 
     def clean_autoridades_extras(self):
@@ -36,6 +39,7 @@ class PadraoForm(forms.Form):
 
 
 class NotificacaoForm(PadraoForm):
+    campo_numero_pasta = None
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for nome in ['campo_email'] + [

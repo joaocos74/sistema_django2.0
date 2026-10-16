@@ -70,23 +70,25 @@ def buscar_cnpj(request):
     if not est:
         return JsonResponse({'existe': False})
     return JsonResponse({'existe': True, 'dados': {
-        'id': est.pk, 'cnpj': est.cnpj, 'razao_social': est.razao_social,
+        'id': est.pk, 'numero_pasta': est.numero_pasta, 'cnpj': est.cnpj, 'razao_social': est.razao_social,
         'nome_fantasia': est.nome_fantasia, 'endereco': endereco_estabelecimento(est),
     }})
 
 
 def serializar(item):
-    return {nome: getattr(item, nome) for nome in (
+    dados = {nome: getattr(item, nome) for nome in (
         'id', 'estabelecimento_id', 'cnpj', 'razao_social', 'nome_fantasia', 'endereco',
         'canal_entrada', 'tipo', 'motivo', 'data_denuncia', 'fiscal_responsavel_id',
         'data_tratativa', 'medidas_adotadas', 'status',
     )}
+    dados['numero_pasta'] = item.estabelecimento.numero_pasta if item.estabelecimento_id else None
+    return dados
 
 
 @login_required
 @require_GET
 def listar_denuncias(request):
-    pagina = Paginator(Denuncia.objects.order_by('-data_criacao', '-pk'), 25).get_page(request.GET.get('page'))
+    pagina = Paginator(Denuncia.objects.select_related('estabelecimento').order_by('-data_criacao', '-pk'), 25).get_page(request.GET.get('page'))
     return JsonResponse({'resultados': [serializar(item) for item in pagina], 'paginas': pagina.paginator.num_pages})
 
 

@@ -4,7 +4,7 @@ from datetime import datetime, date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import Count, Exists, OuterRef, Q, Subquery
 from django.http import JsonResponse, FileResponse, Http404
@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Estabelecimento, Tipo, Responsavel, RTResponsavel, Vigilancia, Documento
-from .forms import EstabelecimentoForm, AnaliseEstabelecimentoForm, InspecaoForm
+from .forms import EstabelecimentoForm, AnaliseEstabelecimentoForm, InspecaoForm, NumeroPastaForm
 
 
 def texto_titulo(valor):
@@ -99,7 +99,7 @@ def cadastrar_estabelecimento_view(request):
                     fiscal_obj = request.user
 
                 # 2. O estabelecimento vem primeiro: as outras tabelas apontam para ele.
-                estabelecimento = Estabelecimento.objects.create(
+                estabelecimento = Estabelecimento(
                     cnpj=texto_livre(post.get('cnpj', post.get('cnpj_cpf'))),
                     nome_fantasia=texto_titulo(post.get('nome_fantasia')),
                     razao_social=texto_titulo(post.get('razao_social')),
@@ -117,6 +117,7 @@ def cadastrar_estabelecimento_view(request):
                     longitude=post.get('longitude') or None,
                     status=False,  # Desmarcado significa ativo.
                 )
+                estabelecimento.save(usuario=request.user)
 
                 # 3. Classificação vinculada ao estabelecimento
                 Tipo.objects.create(
@@ -233,7 +234,7 @@ def _fiscais_visiveis(user):
 
 @login_required
 def pesquisar_estabelecimentos_view(request):
-    estabelecimentos = _estabelecimentos_visiveis(request.user).order_by('id')
+    estabelecimentos = _estabelecimentos_visiveis(request.user).order_by('numero_pasta', 'pk')
     filtros = {
         'cnpj': 'cnpj__icontains',
         'nome_fantasia': 'nome_fantasia__icontains',
@@ -249,7 +250,7 @@ def pesquisar_estabelecimentos_view(request):
         if valor:
             estabelecimentos = estabelecimentos.filter(**{campo: valor})
 
-    for parametro, campo in (('id', 'pk'), ('fiscal_responsavel', 'fiscal_atual_id')):
+    for parametro, campo in (('id', 'numero_pasta'), ('fiscal_responsavel', 'fiscal_atual_id')):
         valor = request.GET.get(parametro, '').strip()
         if valor and valor != 'todos':
             if valor.isascii() and valor.isdigit() and len(valor) <= 18:
@@ -289,7 +290,7 @@ def pesquisar_estabelecimentos_view(request):
                 fiscalizacoes__data_alvara__month=periodo.month,
             )
 
-    ativo = request.GET.get('ativo', '').strip()
+    ativo = request.GET.get('ativo', '1').strip()
     if ativo in ('1', '0'):
         estabelecimentos = estabelecimentos.filter(status=(ativo == '0'))
 
@@ -304,6 +305,7 @@ def pesquisar_estabelecimentos_view(request):
 
     return render(request, 'register/pesquisar.html', {
         'estabelecimentos': estabelecimentos,
+        'ativo_selecionado': ativo,
         'riscos': Tipo.Risco.choices,
         'fiscais': _fiscais_visiveis(request.user),
     })
@@ -333,6 +335,8 @@ def _contexto_analise(request, estabelecimento, pode_editar, form=None, inspecao
         inspecao_form = InspecaoForm(instance=vigilancia)
     return {
         'estabelecimento': estabelecimento, 'licenca': estabelecimento,
+        'numero_pasta_form': NumeroPastaForm(initial={'numero_pasta': estabelecimento.numero_pasta}),
+        'historico_pastas': estabelecimento.historico_pastas.select_related('alterado_por').all(),
         'form': form, 'inspecao_form': inspecao_form, 'tipo': tipo,
         'responsavel': responsavel, 'responsavel_tecnico': tecnico,
         'vigilancia': vigilancia, 'pode_editar': pode_editar,
@@ -343,6 +347,26 @@ def _contexto_analise(request, estabelecimento, pode_editar, form=None, inspecao
         'tipos_documento': Documento.TipoDocumento.choices,
         'fiscais': _fiscais_visiveis(request.user),
     }
+
+
+@login_required
+@require_POST
+def alterar_numero_pasta(request, pk):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    form = NumeroPastaForm(request.POST)
+    if form.is_valid():
+        try:
+            with transaction.atomic():
+                est = get_object_or_404(Estabelecimento.objects.select_for_update(), pk=pk)
+                est.numero_pasta = form.cleaned_data['numero_pasta']
+                est.save(update_fields=['numero_pasta', 'updated_at'], usuario=request.user)
+            messages.success(request, f'Número da pasta atualizado para {est.numero_pasta}. Os vínculos foram preservados.')
+        except ValidationError as erro:
+            messages.error(request, ' '.join(erro.messages))
+    else:
+        messages.error(request, 'Informe um número de pasta inteiro e positivo válido.')
+    return redirect('register_view:analisar', pk=pk)
 
 
 @login_required
@@ -454,7 +478,7 @@ def analisar_estabelecimento_view(request, pk):
                 elif 'status' in request.POST:
                     estabelecimento.status = request.POST.get('status') in ('1', 'true', 'on')
                 estabelecimento.full_clean()
-                estabelecimento.save()
+                estabelecimento.save(usuario=request.user)
 
                 # Uma mudança de classificação gera outro registro, preservando o histórico.
                 tipo = estabelecimento.tipos.order_by('-id').first()
@@ -560,7 +584,7 @@ def analisar_estabelecimento_view(request, pk):
 def cronograma_view(request):
     ano_atual = date.today().year
     fiscal_id = request.GET.get('fiscal', '')
-    estabelecimentos = _estabelecimentos_visiveis(request.user).order_by('nome_fantasia', 'id')
+    estabelecimentos = _estabelecimentos_visiveis(request.user).filter(status=False).order_by('numero_pasta', 'pk')
     if fiscal_id and fiscal_id != 'todos':
         if fiscal_id.isascii() and fiscal_id.isdigit() and len(fiscal_id) <= 18:
             estabelecimentos = estabelecimentos.filter(fiscal_atual_id=int(fiscal_id))

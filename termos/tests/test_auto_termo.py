@@ -28,7 +28,7 @@ class AutoTermoTests(TestCase):
                       'João Responsável', 'Ana Técnica', 'CRF 123', 'MERCADO / 4712100', 'Maria Silva']:
             self.assertContains(response, texto)
         self.assertNotContains(response, 'Responsável antigo')
-        self.assertEqual(response.context['campo_03'], self.est.pk)
+        self.assertEqual(response.context['campo_03'], self.est.numero_pasta)
         self.assertEqual(response.context['campo_01'], 'Montes Claros-MG')
         self.assertEqual(response.context['campo_02'], 'Taiobeiras-MG')
         self.assertContains(response, 'MERCADO ALFA')

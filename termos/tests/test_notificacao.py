@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 from unittest.mock import patch
 from django.contrib.auth import get_user_model
-from django.db import close_old_connections
+from django.db import close_old_connections, connections
 from django.test import TestCase, TransactionTestCase, Client
 from django.urls import reverse
 from register.models import Estabelecimento, Vigilancia
@@ -109,7 +109,7 @@ class ConcorrenciaTests(TransactionTestCase):
             try:
                 return gerar_notificacao(est, user, {}, uuid.uuid4()).numero
             finally:
-                close_old_connections()
+                connections.close_all()
         with ThreadPoolExecutor(max_workers=2) as pool:
             numeros = list(pool.map(emitir, range(2)))
         self.assertEqual(sorted(numeros), [1, 2])

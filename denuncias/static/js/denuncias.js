@@ -25,7 +25,7 @@ if (buscarDenuncia) {
                 input.readOnly = data.existe;
             }
             document.getElementById('id_cadastro_id').value = dados.id || '';
-            status.textContent = data.existe ? `Estabelecimento encontrado: cadastro ${dados.id}. A denúncia será vinculada a ele.` : 'Local não cadastrado. Preencha os dados para registrar uma denúncia sem vínculo.';
+            status.textContent = data.existe ? `Estabelecimento encontrado: pasta ${dados.numero_pasta}. A denúncia será vinculada a ele.` : 'Local não cadastrado. Preencha os dados para registrar uma denúncia sem vínculo.';
         } catch (error) {
             if (versao === buscaAtual) status.textContent = error.message;
         } finally { buscarDenuncia.disabled = false; }

@@ -18,7 +18,7 @@ def contexto_documento(est, user, notificacao=False, pode_salvar=False):
         'estabelecimento': est,
         'campo_01': 'Montes Claros-MG',
         'campo_02': 'Taiobeiras-MG',
-        'campo_03': est.pk,
+        'campo_03': est.numero_pasta,
         'campo_04': est.nome_fantasia, 'campo_05': est.razao_social,
         'campo_06': est.cnpj, 'campo_07': est.insc_municipal,
         'campo_08': ' / '.join(filter(None, [tipo.classe, tipo.cnae_principal])) if tipo else '',

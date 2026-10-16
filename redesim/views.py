@@ -18,6 +18,7 @@ def dados_estabelecimento(estabelecimento):
     fiscal = vigilancia.fiscal if vigilancia else None
     return {
         'id': estabelecimento.pk,
+        'numero_pasta': estabelecimento.numero_pasta,
         'razao_social': estabelecimento.razao_social,
         'nome_fantasia': estabelecimento.nome_fantasia,
         'cnpj_ou_cpf': estabelecimento.cnpj,
@@ -89,9 +90,9 @@ def buscar_cnpj(request):
 @require_GET
 def listar_redesim(request):
     return JsonResponse([
-        {'cadastro_id': item.estabelecimento_id, 'nivel': item.nivel, 'classe': item.classe,
+        {'cadastro_id': item.estabelecimento_id, 'numero_pasta': item.estabelecimento.numero_pasta, 'nivel': item.nivel, 'classe': item.classe,
          'razao_social': item.razao_social, 'cnpj_ou_cpf': item.cnpj_cpf,
          'alvara': item.data_liberacao.strftime('%d/%m/%Y') if item.data_liberacao else '',
          'fiscal_liberacao': (item.fiscal.get_full_name() or item.fiscal.username) if item.fiscal else 'Usuário removido'}
-        for item in RegistroRedesim.objects.select_related('fiscal').order_by('-criado_em', '-pk')
+        for item in RegistroRedesim.objects.select_related('fiscal', 'estabelecimento').order_by('-criado_em', '-pk')
     ], safe=False)

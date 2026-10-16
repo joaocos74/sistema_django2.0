@@ -18,7 +18,7 @@ from openpyxl.utils import get_column_letter
 from denuncias.models import Denuncia
 from redesim.models import RegistroRedesim
 from termos.models import AutoTermoPadrao, NotificacaoPadrao, NotificacaoEmitida
-from .models import Estabelecimento, Tipo, Responsavel, RTResponsavel, Vigilancia, Documento
+from .models import Estabelecimento, Tipo, Responsavel, RTResponsavel, Vigilancia, Documento, HistoricoPasta
 
 
 ABAS = [
@@ -27,6 +27,7 @@ ABAS = [
     ('Inspeções', Vigilancia), ('REDESIM', RegistroRedesim), ('Denúncias', Denuncia),
     ('Documentos', Documento), ('Padrões Auto Termo', AutoTermoPadrao),
     ('Padrões Notificação', NotificacaoPadrao), ('Notificações geradas', NotificacaoEmitida),
+    ('Histórico de pastas', HistoricoPasta),
 ]
 INVALIDOS = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f]')
 
@@ -87,8 +88,9 @@ def descricao_registro(registro, request):
 
 
 def consolidado_por_estabelecimento(wb, request):
-    campos = list(Estabelecimento._meta.concrete_fields)
-    titulos = [str(c.verbose_name) for c in campos] + ['Parte'] + [nome for nome, _ in ABAS[1:]]
+    campos = [Estabelecimento._meta.get_field('numero_pasta')] + [
+        c for c in Estabelecimento._meta.concrete_fields if c.name != 'numero_pasta']
+    titulos = [('ID interno (referência)' if c.primary_key else str(c.verbose_name)) for c in campos] + ['Parte'] + [nome for nome, _ in ABAS[1:]]
     aba = nova_aba(wb, 'Consolidado por estabelecimento', titulos)
     aba.freeze_panes = 'D2'
     relacoes = []
@@ -99,7 +101,7 @@ def consolidado_por_estabelecimento(wb, request):
     for i in range(len(campos) + 2, len(titulos) + 1):
         aba.column_dimensions[get_column_letter(i)].width = 55
     total = 0
-    for est in Estabelecimento.objects.order_by('pk').prefetch_related(*relacoes).iterator(chunk_size=100):
+    for est in Estabelecimento.objects.order_by('numero_pasta', 'pk').prefetch_related(*relacoes).iterator(chunk_size=100):
         blocos = []
         for _, modelo in ABAS[1:]:
             campo = modelo._meta.get_field('estabelecimento')
@@ -127,7 +129,8 @@ def gerar_excel(request, destino):
         ('Gerado em', timezone.localtime().strftime('%d/%m/%Y %H:%M:%S')),
         ('Tabela principal', 'Consolidado por estabelecimento reúne dados cadastrais e todos os vínculos na mesma linha. Históricos extensos continuam nas linhas seguintes, com o mesmo ID e a coluna Parte. As demais abas são complementares.'),
         ('Abrangência', 'Todos os estabelecimentos, ativos e inativos, e todo o histórico. Filtros da tela não se aplicam.'),
-        ('Vínculos', 'Cruze estabelecimento_id com id da aba Estabelecimentos. Cada linha representa um registro, inclusive históricos.'),
+        ('Vínculos', 'Número da pasta é a identificação usada no sistema. Pode repetir entre cadastros inativos e ativos. Para cruzar históricos sem misturar estabelecimentos, use estabelecimento_id com id da aba Estabelecimentos: são referências internas fixas.'),
+        ('Numeração', 'As colunas de pasta mostram a numeração atual. O Histórico de pastas registra as alterações e a situação do cadastro; documentos emitidos preservam o conteúdo original.'),
         ('Usuários', 'Vínculos com usuários incluem ID e nome de exibição, sem credenciais.'),
         ('Situação do cadastro', 'No campo status de Estabelecimentos: falso = ativo; verdadeiro = inativo.'),
         ('Documentos', 'Os anexos não estão embutidos. Use o link de download com login no sistema.'),
@@ -137,7 +140,7 @@ def gerar_excel(request, destino):
         ('Datas', 'Datas e horas no fuso horário configurado no sistema.'),
     ]:
         linha(guia, item)
-    conteudos = nova_aba(wb, 'Conteúdo termos', ['Aba', 'Registro ID', 'Estabelecimento ID', 'Campo', 'Parte', 'Valor'])
+    conteudos = nova_aba(wb, 'Conteúdo termos', ['Aba', 'Registro ID', 'Estabelecimento ID interno', 'Número da pasta', 'Campo', 'Parte', 'Valor'])
     extensos = nova_aba(wb, 'Textos extensos', ['Aba', 'Registro ID', 'Campo', 'Parte', 'Texto'])
     with transaction.atomic():
         for nome, model in ABAS:
@@ -147,6 +150,8 @@ def gerar_excel(request, destino):
                 titulos.append(campo.attname)
                 if campo.is_relation:
                     titulos.append(f'{campo.name} — nome')
+                    if campo.name == 'estabelecimento':
+                        titulos.append('Número da pasta')
                 if campo.choices:
                     titulos.append(f'{campo.name} — descrição')
             if model == Documento:
@@ -154,7 +159,8 @@ def gerar_excel(request, destino):
             if model == NotificacaoEmitida:
                 titulos.extend(['Número formatado', 'Link para documento'])
             aba = nova_aba(wb, nome, titulos)
-            registros = model.objects.select_related(*[f.name for f in campos if f.is_relation]).order_by('pk')
+            ordem = ('numero_pasta', 'pk') if model == Estabelecimento else ('estabelecimento__numero_pasta', 'estabelecimento_id', 'pk')
+            registros = model.objects.select_related(*[f.name for f in campos if f.is_relation]).order_by(*ordem)
             total = 0
             for registro in registros.iterator(chunk_size=1000):
                 valores = []
@@ -177,6 +183,8 @@ def gerar_excel(request, destino):
                             valores.append(relacionado.get_full_name() or relacionado.username)
                         else:
                             valores.append(str(relacionado))
+                        if campo.name == 'estabelecimento':
+                            valores.append(relacionado.numero_pasta if relacionado else None)
                     if campo.choices:
                         valores.append(getattr(registro, f'get_{campo.name}_display')())
                 if model == Documento:
@@ -190,7 +198,7 @@ def gerar_excel(request, destino):
                         for chave, valor in getattr(registro, campo.name).items():
                             texto = valor if isinstance(valor, str) else json.dumps(valor, ensure_ascii=False)
                             for indice, inicio in enumerate(range(0, max(1, len(texto)), 32000), 1):
-                                linha(conteudos, [nome, registro.pk, registro.estabelecimento_id, chave, indice, texto[inicio:inicio + 32000]])
+                                linha(conteudos, [nome, registro.pk, registro.estabelecimento_id, registro.estabelecimento.numero_pasta, chave, indice, texto[inicio:inicio + 32000]])
             aba.auto_filter.ref = f'A1:{get_column_letter(len(titulos))}{total + 1}'
             linha(guia, [nome, f'{total} registro(s)'])
     wb.save(destino)

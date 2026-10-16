@@ -46,7 +46,7 @@ class ConsolidadoExcelTests(TestCase):
         principal = wb.worksheets[0]
         headers = [cell.value for cell in principal[1]]
         linhas = list(principal.values)[1:]
-        vinculadas = [row for row in linhas if row[0] == est.pk]
+        vinculadas = [row for row in linhas if row[headers.index('ID interno (referência)')] == est.pk]
         self.assertEqual(len(vinculadas), 2)  # O histórico extenso continua sem truncamento.
         classificacoes = vinculadas[0][headers.index('Classificações')]
         self.assertIn('Antiga', classificacoes)

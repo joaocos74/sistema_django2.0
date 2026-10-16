@@ -2,7 +2,7 @@
 <table class="table-cronograma">
     <thead>
         <tr>
-            <th style="width: 60px;">ID</th>
+            <th style="width: 60px;">Pasta</th>
             <th style="width: 90px;">Risco</th>
             <th>Estabelecimento</th>
             <th style="width: 160px;">CNPJ / CPF</th>
@@ -14,7 +14,7 @@
     <tbody>
         {% for item in itens %}
         <tr>
-            <td>{{ item.estabelecimento.id }}</td>
+            <td>{{ item.estabelecimento.numero_pasta }}</td>
             <td>RISCO {{ item.estabelecimento.tipo_risco|default:"—" }}</td>
             <td>
                 <a href="{% url 'register_view:analisar' item.estabelecimento.id %}" style="text-decoration: none; color: #0056b3; font-weight: 500;">

@@ -273,7 +273,7 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             definirStatus(
-                "Estabelecimento encontrado. Dados carregados.",
+                `Pasta ${data.dados.numero_pasta}: estabelecimento encontrado. Dados carregados.`,
                 "sucesso"
             );
 
@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             criarCelula(
                 linha,
-                registro.cadastro_id
+                registro.numero_pasta
             );
 
             criarCelula(

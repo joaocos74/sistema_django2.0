@@ -7,6 +7,7 @@ from .models import (
     RTResponsavel,
     Tipo,
     Vigilancia,
+    HistoricoPasta,
 )
 
 
@@ -17,10 +18,33 @@ class RegistroAdmin(admin.ModelAdmin):
 
 @admin.register(Estabelecimento)
 class EstabelecimentoAdmin(RegistroAdmin):
-    list_display = ("id", "nome_fantasia", "cnpj", "razao_social", "bairro", "cidade", "status",)
-    search_fields = ("=id", "nome_fantasia", "cnpj", "razao_social", "logradouro", "bairro",)
+    list_display = ("numero_pasta", "nome_fantasia", "cnpj", "razao_social", "bairro", "cidade", "status",)
+    search_fields = ("=numero_pasta", "nome_fantasia", "cnpj", "razao_social", "logradouro", "bairro",)
     list_filter = ("status", "uf", "cidade")
-    ordering = ("nome_fantasia", "id")
+    ordering = ("numero_pasta", "id")
+
+    def get_readonly_fields(self, request, obj=None):
+        campos = super().get_readonly_fields(request, obj)
+        return campos if request.user.is_superuser else campos + ('numero_pasta',)
+
+    def save_model(self, request, obj, form, change):
+        obj.save(usuario=request.user)
+
+
+@admin.register(HistoricoPasta)
+class HistoricoPastaAdmin(admin.ModelAdmin):
+    list_display = ('estabelecimento', 'numero_anterior', 'numero_novo', 'inativo_novo', 'alterado_por', 'criado_em')
+    list_select_related = ('estabelecimento', 'alterado_por')
+    search_fields = ('=numero_anterior', '=numero_novo', 'estabelecimento__nome_fantasia')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Tipo)
