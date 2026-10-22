@@ -9,10 +9,12 @@ from django.db import transaction
 from django.db.models import Count, Exists, OuterRef, Q, Subquery
 from django.http import JsonResponse, FileResponse, Http404
 from django.views.decorators.http import require_POST
+from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Estabelecimento, Tipo, Responsavel, RTResponsavel, Vigilancia, Documento
 from .forms import EstabelecimentoForm, AnaliseEstabelecimentoForm, InspecaoForm, NumeroPastaForm
+from .inspecoes import com_inspecao_atual
 
 
 def texto_titulo(valor):
@@ -234,7 +236,15 @@ def _fiscais_visiveis(user):
 
 @login_required
 def pesquisar_estabelecimentos_view(request):
-    estabelecimentos = _estabelecimentos_visiveis(request.user).order_by('numero_pasta', 'pk')
+    ano_inspecao = timezone.localdate().year
+    try:
+        if request.GET.get('inspecao_mes'):
+            ano_inspecao = datetime.strptime(request.GET['inspecao_mes'], '%Y-%m').year
+    except ValueError:
+        pass  # A validação do período abaixo informa o erro ao usuário.
+    estabelecimentos = com_inspecao_atual(
+        _estabelecimentos_visiveis(request.user), ano_inspecao,
+    ).order_by('numero_pasta', 'pk')
     filtros = {
         'cnpj': 'cnpj__icontains',
         'nome_fantasia': 'nome_fantasia__icontains',
@@ -265,7 +275,7 @@ def pesquisar_estabelecimentos_view(request):
         )
     status = request.GET.get('inspecao_status', request.GET.get('status', '')).strip()
     if status:
-        estabelecimentos = estabelecimentos.filter(fiscalizacoes__inspecao_status=status)
+        estabelecimentos = estabelecimentos.filter(inspecao_status_atual=status)
 
     for parametro in ('inspecao_mes', 'alvara_mes'):
         valor = request.GET.get(parametro, '').strip()
@@ -279,15 +289,15 @@ def pesquisar_estabelecimentos_view(request):
             continue
         if parametro == 'inspecao_mes':
             estabelecimentos = estabelecimentos.filter(
-                Q(fiscalizacoes__data_realizacao__year=periodo.year,
-                  fiscalizacoes__data_realizacao__month=periodo.month)
-                | Q(fiscalizacoes__ano_previsto=periodo.year,
-                    fiscalizacoes__mes_previsto=periodo.month)
+                Q(inspecao_realizada_em__year=periodo.year,
+                  inspecao_realizada_em__month=periodo.month)
+                | Q(inspecao_ano_previsto=periodo.year,
+                    inspecao_mes_previsto=periodo.month)
             )
         else:
             estabelecimentos = estabelecimentos.filter(
-                fiscalizacoes__data_alvara__year=periodo.year,
-                fiscalizacoes__data_alvara__month=periodo.month,
+                inspecao_alvara_em__year=periodo.year,
+                inspecao_alvara_em__month=periodo.month,
             )
 
     ativo = request.GET.get('ativo', '1').strip()
@@ -306,6 +316,7 @@ def pesquisar_estabelecimentos_view(request):
     return render(request, 'register/pesquisar.html', {
         'estabelecimentos': estabelecimentos,
         'ativo_selecionado': ativo,
+        'ano_inspecao': ano_inspecao,
         'riscos': Tipo.Risco.choices,
         'fiscais': _fiscais_visiveis(request.user),
     })
@@ -582,9 +593,11 @@ def analisar_estabelecimento_view(request, pk):
 
 @login_required
 def cronograma_view(request):
-    ano_atual = date.today().year
+    ano_atual = timezone.localdate().year
     fiscal_id = request.GET.get('fiscal', '')
-    estabelecimentos = _estabelecimentos_visiveis(request.user).filter(status=False).order_by('numero_pasta', 'pk')
+    estabelecimentos = com_inspecao_atual(
+        _estabelecimentos_visiveis(request.user), ano_atual,
+    ).filter(status=False).order_by('numero_pasta', 'pk')
     if fiscal_id and fiscal_id != 'todos':
         if fiscal_id.isascii() and fiscal_id.isdigit() and len(fiscal_id) <= 18:
             estabelecimentos = estabelecimentos.filter(fiscal_atual_id=int(fiscal_id))
@@ -601,13 +614,13 @@ def cronograma_view(request):
     q1, q2, q3, sem_agendamento = [], [], [], []
     for estabelecimento in estabelecimentos:
         vigilancia = ultimas.get(estabelecimento.pk)
-        mes = vigilancia.mes_previsto if vigilancia else None
+        mes = vigilancia.mes_previsto if vigilancia and vigilancia.ano_previsto == ano_atual else None
         realizada = vigilancia.data_realizacao if vigilancia else None
         if estabelecimento.status:
             status, status_class = 'CANCELADO', 'status-cancelado'
-        elif realizada and realizada.year == ano_atual:
+        elif estabelecimento.inspecao_status_atual == Vigilancia.Status.CONCLUIDO:
             status, status_class = 'REALIZADO', 'status-realizado'
-        elif vigilancia and vigilancia.inspecao_status == Vigilancia.Status.PENDENTE:
+        elif estabelecimento.inspecao_status_atual == Vigilancia.Status.PENDENTE:
             status, status_class = 'PENDENTE', 'status-pendente'
         else:
             status, status_class = 'A FAZER', 'status-afazer'
@@ -667,11 +680,12 @@ def atualizar_mes_previsto_ajax(request):
         vigilancia = estabelecimento.fiscalizacoes.order_by('-id').first()
         if vigilancia:
             vigilancia.mes_previsto = mes
-            vigilancia.save(update_fields=['mes_previsto', 'updated_at'])
+            vigilancia.ano_previsto = timezone.localdate().year
+            vigilancia.save(update_fields=['mes_previsto', 'ano_previsto', 'updated_at'])
         else:
             Vigilancia.objects.create(
                 estabelecimento=estabelecimento, fiscal=request.user,
-                ano_previsto=date.today().year, mes_previsto=mes,
+                ano_previsto=timezone.localdate().year, mes_previsto=mes,
                 inspecao_status=Vigilancia.Status.A_FAZER,
             )
     return JsonResponse({'sucesso': True, 'mes_previsto': mes})

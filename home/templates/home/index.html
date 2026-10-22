@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Início — Vigilância Sanitária</title>
 <link rel="stylesheet" href="{% static 'home/css/home.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'home/css/lembretes.css' %}?v=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
@@ -39,8 +40,10 @@
         <div class="board--mini" tabindex="0" role="region" aria-label="Agenda semanal"><div class="week-grid" id="mini-agenda" data-url="{% url 'home:api_agenda_minha' %}"></div></div>
         <noscript>Ative o JavaScript para visualizar sua agenda.</noscript>
     </section>
+    {% include 'home/partials/lembretes.html' %}
     {% include 'home/partials/pendencias.html' %}
 </main>
 <script defer src="{% static 'home/js/agenda_mini.js' %}"></script>
+<script defer src="{% static 'home/js/lembretes.js' %}?v=1"></script>
 </body>
 </html>

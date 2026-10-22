@@ -6,6 +6,8 @@ app_name = 'home'
 
 urlpatterns = [
     path('', views.home_view, name='index'),
+    path('lembretes/novo/', views.lembrete_criar, name='lembrete_criar'),
+    path('lembretes/<int:pk>/concluir/', views.lembrete_concluir, name='lembrete_concluir'),
     path('agenda/', agenda_views.agenda_view, name='agenda'),
     path('api/usuarios/', agenda_views.api_usuarios, name='api_usuarios'),
     path('api/agenda/semana-atual/', agenda_views.api_agenda_semana, name='api_agenda_semana_atual'),

@@ -1,0 +1,39 @@
+.lembretes-card { --lembrete-azul: #0878dc; display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 28px; padding: 28px; margin-bottom: 20px; background: #fff; border: 1px solid #e4e8ed; border-radius: 28px; box-shadow: 0 4px 20px #1b365909; }
+.lembretes-resumo { display: flex; flex-direction: column; justify-content: space-between; gap: 22px; }
+.lembretes-icone { display: grid; place-items: center; width: 54px; height: 54px; background: var(--lembrete-azul); color: #fff; border-radius: 50%; }
+.lembretes-icone svg { width: 31px; height: 31px; }
+.lembretes-total { font-size: 52px; line-height: 1; font-weight: 650; letter-spacing: -2px; color: #14181e; }
+.lembretes-resumo h2 { font-size: 23px; font-weight: 650; color: var(--lembrete-azul); margin-top: 8px; }
+.lembretes-conteudo { min-width: 0; align-self: center; }
+.lembretes-lista { list-style: none; max-height: 300px; overflow-y: auto; scrollbar-width: thin; }
+.lembrete-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; }
+.lembrete-item + .lembrete-item { border-top: 1px solid #f0f2f5; }
+.lembrete-concluir { flex-shrink: 0; }
+.lembrete-circulo { display: grid; place-items: center; width: 32px; height: 32px; border: 2px solid #c5c9cf; border-radius: 50%; background: transparent; cursor: pointer; color: var(--lembrete-azul); }
+.lembrete-circulo span { visibility: hidden; font-size: 20px; }
+.lembrete-circulo:hover { border-color: var(--lembrete-azul); background: #eff7ff; }
+.lembrete-circulo:hover span, .lembrete-circulo:disabled span { visibility: visible; }
+.lembrete-circulo:disabled { opacity: .55; cursor: wait; }
+.lembrete-texto { font-size: 17px; line-height: 1.6; overflow-wrap: anywhere; min-width: 0; }
+.lembretes-vazio { font-size: 16px; color: #687280; margin: 10px 0 18px; }
+.lembrete-novo { display: flex; align-items: center; gap: 12px; margin-top: 10px; border-top: 1px solid #edf0f4; padding-top: 14px; }
+.lembrete-mais { width: 32px; flex-shrink: 0; text-align: center; color: var(--lembrete-azul); font-size: 28px; }
+.lembrete-novo input { min-width: 0; width: 100%; border: 0; background: transparent; color: #202630; font-size: 16px; padding: 10px 0; }
+.lembrete-novo input::placeholder { color: #748091; }
+.lembrete-adicionar { padding: 9px 12px; border: 0; border-radius: 10px; background: #edf6ff; color: #0665bc; font-size: 13px; font-weight: 600; cursor: pointer; }
+.lembrete-adicionar:hover { background: #dceeff; }
+.lembrete-adicionar:disabled { opacity: .55; cursor: wait; }
+.lembrete-retorno { font-size: 13px; color: #526375; margin-top: 8px; }
+.lembrete-retorno[data-erro="true"], .lembrete-retorno .errorlist { color: #b42318; }
+.lembrete-retorno .errorlist { list-style: none; }
+.lembretes-card :focus-visible { outline: 2px solid var(--lembrete-azul); outline-offset: 3px; }
+@media (max-width: 600px) {
+    .lembretes-card { grid-template-columns: 1fr; gap: 18px; padding: 20px; border-radius: 22px; }
+    .lembretes-resumo { flex-direction: row; align-items: center; }
+    .lembretes-resumo > div { display: flex; align-items: baseline; gap: 12px; }
+    .lembretes-total { font-size: 36px; }
+    .lembretes-resumo h2 { font-size: 20px; margin: 0; }
+    .lembrete-novo { gap: 8px; flex-wrap: wrap; }
+    .lembrete-novo input { flex: 1; }
+    .lembrete-texto { font-size: 16px; }
+}

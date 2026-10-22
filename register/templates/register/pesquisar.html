@@ -64,7 +64,7 @@
 
 
                         <div class="form-group">
-                            <label for="status">Status da Inspeção</label>
+                            <label for="status">Status da Inspeção ({{ ano_inspecao }})</label>
                             <select id="status" name="inspecao_status" class="form-control">
                                 <option value="">Todos os Status</option>
                                 <option value="a_fazer" {% if request.GET.inspecao_status == 'a_fazer' %}selected{% endif %}>A fazer</option>

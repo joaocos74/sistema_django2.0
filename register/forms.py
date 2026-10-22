@@ -197,7 +197,10 @@ class InspecaoForm(forms.ModelForm):
             'plano_aplicado', 'plano_status', 'termo_ciencia', 'termo_status',
             'interdicao', 'interdicao_status', 'processo', 'processo_status',
         )
-        labels = {'ano_previsto': 'Ano previsto', 'mes_previsto': 'Mês previsto', 'obs': 'Observações'}
+        labels = {
+            'ano_previsto': 'Ano previsto', 'mes_previsto': 'Mês previsto',
+            'data_realizacao': 'Data de realização', 'obs': 'Observações',
+        }
         widgets = {
             'data_realizacao': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
             'data_alvara': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),

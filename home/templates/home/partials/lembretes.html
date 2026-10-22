@@ -1,0 +1,29 @@
+<section class="lembretes-card" id="lembretes" aria-labelledby="lembretes-heading">
+    <div class="lembretes-resumo">
+        <span class="lembretes-icone" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><path d="M12 8h14M12 16h14M12 24h14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="5" cy="8" r="2" fill="currentColor"/><circle cx="5" cy="16" r="2" fill="currentColor"/><circle cx="5" cy="24" r="2" fill="currentColor"/></svg>
+        </span>
+        <div><p class="lembretes-total" id="lembretes-total">{{ lembretes|length }}</p><h2 id="lembretes-heading">Lembretes</h2></div>
+    </div>
+    <div class="lembretes-conteudo">
+        <ul class="lembretes-lista" id="lembretes-lista">
+            {% for lembrete in lembretes %}
+            <li class="lembrete-item">
+                <form action="{% url 'home:lembrete_concluir' lembrete.pk %}" method="post" class="lembrete-concluir">
+                    {% csrf_token %}
+                    <button type="submit" class="lembrete-circulo" aria-label="Concluir lembrete: {{ lembrete.texto }}"><span aria-hidden="true">✓</span></button>
+                </form>
+                <span class="lembrete-texto">{{ lembrete.texto }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        <p class="lembretes-vazio" id="lembretes-vazio" {% if lembretes %}hidden{% endif %}>O que você precisa lembrar?</p>
+        <form action="{% url 'home:lembrete_criar' %}" method="post" id="lembrete-novo" class="lembrete-novo">
+            {% csrf_token %}
+            <span class="lembrete-mais" aria-hidden="true">+</span>
+            {{ lembrete_form.texto }}
+            <button type="submit" class="lembrete-adicionar">Adicionar</button>
+        </form>
+        <div class="lembrete-retorno" id="lembrete-retorno" role="status" aria-live="polite">{{ lembrete_form.texto.errors }}</div>
+    </div>
+</section>
