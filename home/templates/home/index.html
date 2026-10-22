@@ -7,6 +7,7 @@
 <title>Início — Vigilância Sanitária</title>
 <link rel="stylesheet" href="{% static 'home/css/home.css' %}?v=4">
 <link rel="stylesheet" href="{% static 'home/css/lembretes.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'home/css/reflexoes.css' %}?v=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
@@ -18,7 +19,7 @@
             <input id="home-search" name="nome_fantasia" placeholder="Pesquisar estabelecimento por nome…" maxlength="255">
             <button type="submit" aria-label="Pesquisar"><span class="icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span></button>
         </form>
-        <div class="navbar-user"><i class="fa-solid fa-user" aria-hidden="true"></i> {{ request.user.first_name|default:request.user.username }}</div>
+        <div class="navbar-user">{% include 'home/partials/reflexoes.html' %}<i class="fa-solid fa-user" aria-hidden="true"></i> {{ request.user.first_name|default:request.user.username }}</div>
         <form action="{% url 'usuarios:logout' %}" method="post" class="form-logout">{% csrf_token %}<button type="submit" class="navbar-login">SAIR</button></form>
     </div>
     <nav class="navbar-menu" aria-label="Módulos do sistema">
@@ -45,5 +46,6 @@
 </main>
 <script defer src="{% static 'home/js/agenda_mini.js' %}"></script>
 <script defer src="{% static 'home/js/lembretes.js' %}?v=1"></script>
+<script defer src="{% static 'home/js/reflexoes.js' %}?v=1"></script>
 </body>
 </html>

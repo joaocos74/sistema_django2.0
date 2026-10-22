@@ -5,18 +5,27 @@ from django.db.models import Subquery
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.cache import never_cache
 
 from denuncias.models import Denuncia
 from register.models import Estabelecimento, Vigilancia
 from register.inspecoes import com_inspecao_atual
 from .forms import LembreteForm
 from .models import Lembrete
+from .reflexoes import sortear_reflexao
 
 
 @login_required
 def home_view(request):
     return _render_home(request)
+
+
+@login_required
+@require_GET
+@never_cache
+def reflexao_aleatoria(request):
+    return JsonResponse(sortear_reflexao(request.GET.get('anterior', '')))
 
 
 def _render_home(request, lembrete_form=None, status=200):

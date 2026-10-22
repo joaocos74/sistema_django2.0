@@ -8,6 +8,7 @@ from django.urls import reverse
 from denuncias.models import Denuncia
 from register.models import Estabelecimento, Vigilancia
 from home.models import Lembrete
+from home.reflexoes import catalogo
 
 
 class MinhasPendenciasTests(TestCase):
@@ -151,3 +152,51 @@ class LembreteTests(TestCase):
                              reverse('home:index') + '#lembretes')
         response = self.client.post(self.url, {'texto': ''})
         self.assertEqual(response.status_code, 400)
+
+
+class ReflexaoTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user('leitor')
+        self.client.force_login(self.user)
+        self.url = reverse('home:reflexao_aleatoria')
+
+    def test_exige_login_e_aceita_apenas_get(self):
+        self.assertEqual(self.client.post(self.url).status_code, 405)
+        self.client.logout()
+        self.assertEqual(self.client.get(self.url).status_code, 302)
+
+    def test_entrega_bloco_inteiro_com_fonte_sem_cache(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('no-store', response.headers['Cache-Control'])
+        data = response.json()
+        original = next(item for item in catalogo()['reflexoes'] if item['id'] == data['id'])
+        self.assertEqual(data['titulo'], original['titulo'])
+        self.assertEqual(data['paragrafos'], original['paragrafos'])
+        self.assertIn('Sharon Lebell', data['fonte'])
+        self.assertIn('Maria Luiza Newlands da Silveira', data['fonte'])
+        self.assertIn(str(original['pagina_livro_inicio']), data['paginas'])
+        self.assertNotIn('reflexoes', data)
+
+    def test_nao_repete_ultima_exibida_e_tolera_parametro_invalido(self):
+        previous = self.client.get(self.url).json()['id']
+        for _ in range(12):
+            current = self.client.get(self.url, {'anterior': previous}).json()['id']
+            self.assertNotEqual(current, previous)
+            previous = current
+        self.assertEqual(self.client.get(self.url, {'anterior': 'inválido'}).status_code, 200)
+
+    def test_catalogo_preserva_blocos_que_atravessam_paginas(self):
+        items = catalogo()['reflexoes']
+        self.assertEqual(len(items), 92)
+        self.assertEqual(len({item['id'] for item in items}), len(items))
+        for item in items:
+            self.assertTrue(item['titulo'])
+            self.assertTrue(item['paragrafos'])
+            self.assertTrue(all(text.strip() for text in item['paragrafos']))
+            self.assertLessEqual(item['pagina_pdf_inicio'], item['pagina_pdf_fim'])
+            self.assertEqual(item['pagina_pdf_inicio'] - 4, item['pagina_livro_inicio'])
+        continued = next(item for item in items if item['id'] == 3)
+        self.assertEqual((continued['pagina_pdf_inicio'], continued['pagina_pdf_fim']), (19, 20))
+        self.assertTrue(continued['paragrafos'][-1].endswith('treine a si mesmo para não se preocupar com ela.'))
+        self.assertEqual(items[-1]['paragrafos'][-1], 'Dê o melhor de si e seja sempre bom.')

@@ -1,0 +1,18 @@
+<div class="reflexoes" id="reflexoes" hidden>
+    <button type="button" id="reflexao-abrir" class="reflexao-icone" aria-label="Ler uma reflexão" title="Ler uma reflexão" aria-haspopup="dialog" aria-expanded="false" aria-controls="reflexao-balao" data-url="{% url 'home:reflexao_aleatoria' %}">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-8 8H4l1.6-3.4A8 8 0 1 1 20 11.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <span class="reflexao-sinal" aria-hidden="true"></span>
+    </button>
+    <section id="reflexao-balao" class="reflexao-balao" role="dialog" aria-modal="false" aria-labelledby="reflexao-titulo" tabindex="-1" hidden>
+        <div class="reflexao-cabecalho">
+            <div><p class="reflexao-etiqueta">Uma pausa para refletir</p><h2 id="reflexao-titulo">A arte de viver</h2></div>
+            <button type="button" id="reflexao-fechar" class="reflexao-fechar" aria-label="Fechar reflexão">×</button>
+        </div>
+        <p id="reflexao-status" class="reflexao-status" role="status" aria-live="polite"></p>
+        <div id="reflexao-texto" class="reflexao-texto"></div>
+        <footer class="reflexao-rodape">
+            <p id="reflexao-fonte"></p>
+            <p class="reflexao-dica">Clique no ícone para ler outra reflexão.</p>
+        </footer>
+    </section>
+</div>
