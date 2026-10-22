@@ -1,5 +1,5 @@
-<section class="card nc-indicador" aria-labelledby="nc-titulo">
-    <div class="card__header"><h2 id="nc-titulo">Não conformidades por inspeção</h2></div>
+<details class="card analysis-panel nc-indicador" aria-labelledby="nc-titulo">
+    <summary class="card__header"><span id="nc-titulo">Não conformidades por inspeção</span><span class="panel-hint">Ver mais / recolher</span></summary>
     <div class="card__body">
         <p class="nc-ajuda">Evolução das quantidades em cada inspeção deste estabelecimento. Inspeções sem contagem informada não entram no gráfico.</p>
         {% if nao_conformidades %}
@@ -23,5 +23,5 @@
         <p class="nc-vazio">Nenhuma contagem de não conformidades informada. Preencha os campos na aba Inspeção e salve para acompanhar a evolução.</p>
         {% endif %}
     </div>
-</section>
+</details>
 {{ nao_conformidades|json_script:"nc-dados" }}
