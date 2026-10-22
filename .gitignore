@@ -30,3 +30,15 @@ Desktop.ini
 .idea/
 .vscode/
 *.zip
+
+# Artefatos locais de migração: contêm dados pessoais e cópias das fontes
+docs/importacao_*/
+docs/atualizacao_inspecoes_*/
+docs/validacao_cadastro_*/
+docs/orientacao_openclaw/
+docs/planilhas/
+*.dump
+*.backup
+
+# Cópias isoladas de desenvolvimento
+.worktrees/
