@@ -1,5 +1,6 @@
 from django.db import models 
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 import os
 
@@ -327,6 +328,17 @@ class RTResponsavel(models.Model):
 
 
 class Vigilancia(models.Model):
+    campos_nao_conformidades = ('nc_total', 'nc_criticas', 'nc_maiores')
+
+    nc_total = models.PositiveIntegerField(
+        'Total de não conformidades', null=True, blank=True, validators=[MaxValueValidator(2147483647)],
+    )
+    nc_criticas = models.PositiveIntegerField(
+        'Não conformidades críticas', null=True, blank=True, validators=[MaxValueValidator(2147483647)],
+    )
+    nc_maiores = models.PositiveIntegerField(
+        'Não conformidades maiores', null=True, blank=True, validators=[MaxValueValidator(2147483647)],
+    )
 
 
     class Status(models.TextChoices):
@@ -439,6 +451,33 @@ class Vigilancia(models.Model):
     class Meta:
         verbose_name = "Vigilância Inspeção"
         verbose_name_plural = "Vigilância Inspeções"
+        constraints = [
+            models.CheckConstraint(
+                name='vigilancia_nc_validas',
+                condition=(
+                    models.Q(nc_total__isnull=True, nc_criticas__isnull=True, nc_maiores__isnull=True)
+                    | (
+                        models.Q(nc_total__isnull=False, nc_criticas__isnull=False,
+                                 nc_maiores__isnull=False, data_realizacao__isnull=False)
+                        & models.Q(nc_total__gte=models.F('nc_criticas') + models.F('nc_maiores'))
+                    )
+                ),
+            ),
+        ]
+
+    def clean(self):
+        super().clean()
+        valores = [getattr(self, campo) for campo in self.campos_nao_conformidades]
+        if all(valor is None for valor in valores):
+            return
+        erros = {campo: 'Preencha as três quantidades; use 0 quando não houver.'
+                 for campo, valor in zip(self.campos_nao_conformidades, valores) if valor is None}
+        if not self.data_realizacao:
+            erros['data_realizacao'] = 'Informe a data da inspeção para registrar as não conformidades.'
+        if all(valor is not None for valor in valores) and self.nc_criticas + self.nc_maiores > self.nc_total:
+            erros['nc_total'] = 'A soma de críticas e maiores não pode ultrapassar o total.'
+        if erros:
+            raise ValidationError(erros)
 
 
 

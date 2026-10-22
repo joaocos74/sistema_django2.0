@@ -1,0 +1,29 @@
+.nc-campos { min-width: 0; margin: 20px 0 0; padding: 16px 0 0; border: 0; border-top: 1px solid #e5e7eb; }
+.nc-campos legend { padding-right: 12px; font-size: 14px; font-weight: 600; color: #222; }
+.nc-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 12px 0; }
+.nc-grid .form-group { min-width: 0; }
+.nc-ajuda, .nc-vazio { margin: 0 0 12px; color: #6b7280; font-size: 13px; line-height: 1.5; }
+.nc-indicador { min-width: 0; }
+.nc-indicador h2 { margin: 0; font-size: 15px; }
+.nc-legenda { display: flex; flex-wrap: wrap; gap: 20px; margin: 16px 0; padding: 0; list-style: none; font-size: 13px; }
+.nc-legenda li { display: flex; align-items: center; gap: 8px; }
+.nc-cor { width: 10px; height: 10px; border-radius: 50%; }
+.nc-cor-criticas { background: #dc3545; }
+.nc-cor-maiores { background: #3563e9; border-radius: 2px; }
+.nc-grafico { overflow-x: auto; width: 100%; scrollbar-width: thin; }
+.nc-grafico svg { display: block; max-width: none; font-family: inherit; }
+.nc-grafico text { fill: #4b5563; font-size: 12px; }
+.nc-grafico .nc-grade { stroke: #e5e7eb; stroke-width: 1; }
+.nc-grafico .nc-eixo { stroke: #9ca3af; stroke-width: 1; }
+.nc-grafico .nc-ponto:focus { outline: 2px solid #169b5b; outline-offset: 3px; }
+.nc-grafico:focus-visible { outline: 2px solid #169b5b; outline-offset: 2px; }
+.nc-valores { margin-top: 16px; font-size: 13px; }
+.nc-valores summary { cursor: pointer; color: #12804b; padding: 8px 0; }
+.nc-valores caption { text-align: left; padding: 12px 0; font-size: 13px; }
+.nc-vazio { padding: 20px 0; }
+@media (max-width: 600px) { .nc-grid { gap: 8px; } }
+@media print {
+    .nc-grafico { overflow: visible; }
+    .nc-grafico svg { width: 100%; height: auto; }
+    .nc-cor, .nc-grafico svg { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}

@@ -1,6 +1,7 @@
 {% extends 'register/base.html' %}
 {% load static %}
 {% block title %}Analisar — {{ estabelecimento.nome_fantasia }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'register/css/nao_conformidades.css' %}?v=1">{% endblock %}
 {% block actions %}
 <a href="{% url 'register_view:pesquisar' %}" class="btn btn-secundary">Voltar</a>
 <a href="{% url 'termos:auto_termo' estabelecimento.pk %}" target="_blank" rel="noopener" class="btn btn-tertiary">Auto Termo</a>
@@ -31,6 +32,18 @@
                         {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
                     </div>{% endfor %}
                 </div>
+                <fieldset class="nc-campos">
+                    <legend>Não conformidades</legend>
+                    <p class="nc-ajuda">Informe o total encontrado nesta inspeção e, desse total, quantas são críticas e maiores. Preencha as três quantidades; use 0 quando não houver.</p>
+                    <div class="nc-grid">
+                        {% for field in inspecao_form.nao_conformidades %}<div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}{{ field.errors }}
+                        </div>{% endfor %}
+                    </div>
+                    <p class="nc-ajuda">Deixe os três campos vazios se a contagem não foi informada.</p>
+                    <p id="nc-aviso-data" class="nc-ajuda" role="status" hidden>Data alterada: informe as quantidades da nova inspeção.</p>
+                </fieldset>
             </div>
         </details>
         {% endfor %}
@@ -86,5 +99,9 @@
 </details>
 
 {% include 'denuncias/historico.html' %}
+{% include 'register/partials/nao_conformidades.html' %}
 {% endblock %}
-{% block scripts %}<script src="{% static 'register/js/analisar.js' %}" defer></script>{% endblock %}
+{% block scripts %}
+<script src="{% static 'register/js/analisar.js' %}" defer></script>
+<script src="{% static 'register/js/nao_conformidades.js' %}?v=1" defer></script>
+{% endblock %}

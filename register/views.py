@@ -344,6 +344,13 @@ def _contexto_analise(request, estabelecimento, pode_editar, form=None, inspecao
             form.fields['fiscal_responsavel'].queryset = User.objects.filter(Q(is_active=True) | Q(pk=vigilancia.fiscal_id))
     if inspecao_form is None:
         inspecao_form = InspecaoForm(instance=vigilancia)
+    nao_conformidades = [
+        {'id': item.pk, 'data': item.data_realizacao.strftime('%d/%m/%Y'),
+         'total': item.nc_total, 'criticas': item.nc_criticas, 'maiores': item.nc_maiores}
+        for item in estabelecimento.fiscalizacoes.filter(
+            data_realizacao__isnull=False, nc_total__isnull=False,
+        ).order_by('data_realizacao', 'pk')
+    ]
     return {
         'estabelecimento': estabelecimento, 'licenca': estabelecimento,
         'numero_pasta_form': NumeroPastaForm(initial={'numero_pasta': estabelecimento.numero_pasta}),
@@ -353,6 +360,7 @@ def _contexto_analise(request, estabelecimento, pode_editar, form=None, inspecao
         'vigilancia': vigilancia, 'pode_editar': pode_editar,
         'historico_tipos': estabelecimento.tipos.select_related('alterado_por').order_by('created_at', 'id'),
         'historico_vigilancias': estabelecimento.fiscalizacoes.select_related('fiscal').order_by('created_at', 'id'),
+        'nao_conformidades': nao_conformidades,
         'documentos': estabelecimento.documentos.select_related('enviado_por').order_by('-id'),
         'historico_denuncias': estabelecimento.denuncias.select_related('fiscal_responsavel').order_by('-data_criacao', '-pk'),
         'tipos_documento': Documento.TipoDocumento.choices,
@@ -570,6 +578,9 @@ def analisar_estabelecimento_view(request, pk):
                 mes = request.POST.get('mes_previsto', '').strip()
                 vigilancia.mes_previsto = int(mes) if mes else None
                 vigilancia.obs = texto_livre(request.POST.get('obs', request.POST.get('observacoes', vigilancia.obs)))
+                if any(campo in request.POST for campo in Vigilancia.campos_nao_conformidades):
+                    for campo in Vigilancia.campos_nao_conformidades:
+                        setattr(vigilancia, campo, inspecao_form.cleaned_data[campo])
                 for titulo, acao, status in InspecaoForm.acoes:
                     setattr(vigilancia, acao, inspecao_form.cleaned_data[acao])
                     setattr(vigilancia, status, inspecao_form.cleaned_data.get(status))

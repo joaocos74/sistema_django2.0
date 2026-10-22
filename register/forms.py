@@ -196,10 +196,12 @@ class InspecaoForm(forms.ModelForm):
             'inspecao_status', 'ano_previsto', 'mes_previsto', 'data_realizacao', 'data_alvara', 'obs',
             'plano_aplicado', 'plano_status', 'termo_ciencia', 'termo_status',
             'interdicao', 'interdicao_status', 'processo', 'processo_status',
+            'nc_total', 'nc_criticas', 'nc_maiores',
         )
         labels = {
             'ano_previsto': 'Ano previsto', 'mes_previsto': 'Mês previsto',
             'data_realizacao': 'Data de realização', 'obs': 'Observações',
+            'nc_total': 'Total', 'nc_criticas': 'Críticas', 'nc_maiores': 'Maiores',
         }
         widgets = {
             'data_realizacao': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
@@ -214,6 +216,8 @@ class InspecaoForm(forms.ModelForm):
             self.fields[name].input_formats = ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y')
         self.fields['mes_previsto'].widget.attrs.update({'min': 1, 'max': 12, 'placeholder': 'De 1 a 12'})
         self.fields['ano_previsto'].widget.attrs.update({'min': 1, 'max': 9999, 'placeholder': 'Ex.: 2026'})
+        for nome in Vigilancia.campos_nao_conformidades:
+            self.fields[nome].widget.attrs.update({'min': 0, 'step': 1, 'placeholder': 'Ex.: 0'})
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
         for titulo, acao, status in self.acoes:
@@ -224,7 +228,12 @@ class InspecaoForm(forms.ModelForm):
 
     @property
     def sections(self):
-        return [('Inspeção', [self[nome] for nome in self.Meta.fields])]
+        return [('Inspeção', [self[nome] for nome in self.Meta.fields
+                             if nome not in Vigilancia.campos_nao_conformidades])]
+
+    @property
+    def nao_conformidades(self):
+        return [self[nome] for nome in Vigilancia.campos_nao_conformidades]
 
     def clean(self):
         data = super().clean()

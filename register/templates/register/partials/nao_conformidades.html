@@ -1,0 +1,27 @@
+<section class="card nc-indicador" aria-labelledby="nc-titulo">
+    <div class="card__header"><h2 id="nc-titulo">Não conformidades por inspeção</h2></div>
+    <div class="card__body">
+        <p class="nc-ajuda">Evolução das quantidades em cada inspeção deste estabelecimento. Inspeções sem contagem informada não entram no gráfico.</p>
+        {% if nao_conformidades %}
+        <ul class="nc-legenda" aria-label="Legenda do gráfico">
+            <li><span class="nc-cor nc-cor-criticas" aria-hidden="true"></span>Críticas</li>
+            <li><span class="nc-cor nc-cor-maiores" aria-hidden="true"></span>Maiores</li>
+        </ul>
+        <div id="nc-grafico" class="nc-grafico" tabindex="0" role="region" aria-label="Evolução de não conformidades. Role horizontalmente para ver todas as inspeções."></div>
+        <noscript>Ative o JavaScript para visualizar o gráfico. Os valores estão na tabela abaixo.</noscript>
+        <details class="analysis-panel nc-valores">
+            <summary>Ver valores por inspeção</summary>
+            <div class="table-wrapper"><table class="table">
+                <caption>Quantidades registradas por inspeção</caption>
+                <thead><tr><th scope="col">Inspeção</th><th scope="col">Data de realização</th><th scope="col">Total</th><th scope="col">Críticas</th><th scope="col">Maiores</th></tr></thead>
+                <tbody>{% for item in nao_conformidades %}<tr>
+                    <td>#{{ item.id }}</td><td>{{ item.data }}</td><td>{{ item.total }}</td><td>{{ item.criticas }}</td><td>{{ item.maiores }}</td>
+                </tr>{% endfor %}</tbody>
+            </table></div>
+        </details>
+        {% else %}
+        <p class="nc-vazio">Nenhuma contagem de não conformidades informada. Preencha os campos na aba Inspeção e salve para acompanhar a evolução.</p>
+        {% endif %}
+    </div>
+</section>
+{{ nao_conformidades|json_script:"nc-dados" }}
