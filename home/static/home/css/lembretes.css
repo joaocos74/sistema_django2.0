@@ -1,11 +1,10 @@
-.lembretes-card { padding: 16px 20px; margin-bottom: 20px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-color); font-family: var(--font-family); }
-.lembretes-resumo { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-.lembretes-resumo > div { display: flex; align-items: center; gap: 8px; }
-.lembretes-icone { display: grid; place-items: center; color: var(--primary-color); }
-.lembretes-icone svg { width: 20px; height: 20px; }
-.lembretes-total { padding: 2px 8px; border-radius: 12px; background: #eef3f0; color: #385b46; font-size: 12px; font-weight: 600; }
-.lembretes-resumo h2 { font-size: 15px; font-weight: 700; color: #111827; }
-.lembretes-conteudo { min-width: 0; }
+.lembretes-card { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 24px; padding: 16px 20px; margin-bottom: 20px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-color); font-family: var(--font-family); }
+.lembretes-resumo { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 28px; min-height: 180px; }
+.lembretes-icone { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--primary-color); color: #fff; }
+.lembretes-icone svg { width: 28px; height: 28px; }
+.lembretes-total { font-size: 44px; line-height: 1; font-weight: 600; color: var(--text-color); overflow-wrap: anywhere; }
+.lembretes-resumo h2 { margin-top: 8px; font-size: 15px; font-weight: 700; color: var(--primary-color); }
+.lembretes-conteudo { min-width: 0; align-self: center; }
 .lembretes-lista { list-style: none; max-height: 300px; overflow-y: auto; scrollbar-width: thin; }
 .lembrete-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; }
 .lembrete-item + .lembrete-item { border-top: 1px solid #f0f2f5; }
@@ -33,4 +32,12 @@
     .lembretes-card { padding: 16px; }
     .lembrete-novo { gap: 8px; flex-wrap: wrap; }
     .lembrete-novo input { flex: 1; }
+}
+@media (max-width: 600px) {
+    .lembretes-card { grid-template-columns: 88px minmax(0, 1fr); gap: 16px; }
+    .lembretes-icone { width: 42px; height: 42px; }
+    .lembretes-icone svg { width: 24px; height: 24px; }
+    .lembretes-total { font-size: 36px; }
+    .lembrete-novo input { flex-basis: calc(100% - 36px); }
+    .lembrete-adicionar { margin-left: 36px; }
 }
