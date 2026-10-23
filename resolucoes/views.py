@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib import messages
@@ -11,7 +12,7 @@ from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods
 
-from .forms import ResolucaoForm, EditarResolucaoForm
+from .forms import ResolucaoForm, EditarResolucaoForm, FiltroResolucaoForm
 from .models import Resolucao
 
 
@@ -34,23 +35,38 @@ def registro_para_editar(request, pk):
 def index(request):
     form = ResolucaoForm(request.POST if request.method == 'POST' else None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
-        registro = form.save(commit=False)
-        registro.adicionado_por = request.user
-        registro.nome_original = form.cleaned_data['arquivo'].name
-        registro.tamanho = form.cleaned_data['arquivo'].size
-        registro.save()
+        with transaction.atomic():
+            registro = form.save(commit=False)
+            registro.adicionado_por = request.user
+            registro.nome_original = form.cleaned_data['arquivo'].name
+            registro.tamanho = form.cleaned_data['arquivo'].size
+            registro.save()
         messages.success(request, 'Resolução adicionada com sucesso!')
         return redirect('resolucoes:index')
     busca = request.GET.get('q', '').strip()
-    registros = Resolucao.objects.select_related('adicionado_por')
-    if busca:
-        registros = registros.filter(Q(descricao__icontains=busca) | Q(nome_original__icontains=busca))
+    filtro = FiltroResolucaoForm(request.GET, auto_id='filtro_%s')
+    registros = Resolucao.objects.select_related('adicionado_por', 'classe')
+    if filtro.is_valid():
+        if busca:
+            registros = registros.filter(Q(descricao__icontains=busca) | Q(nome_original__icontains=busca))
+        classe = filtro.cleaned_data['classe']
+        if classe == 'sem_classe':
+            registros = registros.filter(classe__isnull=True)
+        elif classe:
+            registros = registros.filter(classe_id=int(classe))
+        situacao = filtro.cleaned_data['situacao']
+        if situacao:
+            registros = registros.filter(revogada=(situacao == 'revogadas'))
+    else:
+        registros = registros.none()
+    filtro_query = urlencode({campo: request.GET[campo] for campo in ('q', 'classe', 'situacao')
+                             if request.GET.get(campo)})
     pagina = Paginator(registros, 25).get_page(request.GET.get('page'))
     for registro in pagina:
         registro.pode_editar = pode_editar(request.user, registro)
     return render(request, 'resolucoes/index.html', {
         'form': form, 'busca': busca, 'limite': settings.RESOLUCOES_MAX_BYTES,
-        'pagina': pagina,
+        'pagina': pagina, 'filtro': filtro, 'filtro_query': filtro_query,
     })
 
 

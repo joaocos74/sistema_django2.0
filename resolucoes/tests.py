@@ -7,7 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from .models import Resolucao
+from .models import Resolucao, ClasseResolucao
 
 
 PDF = b'%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF\n'
@@ -22,10 +22,12 @@ class ResolucoesTests(TestCase):
         self.addCleanup(storage.stop)
         self.user = get_user_model().objects.create_user('fiscal')
         self.client.force_login(self.user)
+        self.classe, _ = ClasseResolucao.objects.get_or_create(chave='alimentos', defaults={'nome': 'Alimentos'})
 
     def enviar(self, descricao='RDC 216 — Boas práticas', nome='resolucao.pdf', conteudo=PDF, **extra):
         return self.client.post(reverse('resolucoes:index'), {
-            'descricao': descricao, 'arquivo': SimpleUploadedFile(nome, conteudo, content_type='application/pdf'), **extra,
+            'descricao': descricao, 'arquivo': SimpleUploadedFile(nome, conteudo, content_type='application/pdf'),
+            'classe': self.classe.pk, **extra,
         })
 
     def test_upload_listagem_e_visualizacao_inline(self):
@@ -121,7 +123,7 @@ class ResolucoesTests(TestCase):
         caminho = registro.arquivo.name
         url = reverse('resolucoes:editar', args=[registro.pk])
         self.assertContains(self.client.get(reverse('resolucoes:index')), url)
-        self.assertRedirects(self.client.post(url, {'descricao': 'Descrição corrigida', 'revogada': 'on'}), reverse('resolucoes:index'))
+        self.assertRedirects(self.client.post(url, {'descricao': 'Descrição corrigida', 'classe': self.classe.pk, 'revogada': 'on'}), reverse('resolucoes:index'))
         registro.refresh_from_db()
         self.assertTrue(registro.revogada)
         self.assertEqual(registro.descricao, 'Descrição corrigida')
@@ -131,14 +133,14 @@ class ResolucoesTests(TestCase):
         self.assertContains(response, 'resolucoes-item--revogada')
         self.assertContains(response, '>Revogada</span>')
         self.assertContains(response, reverse('resolucoes:visualizar', args=[registro.pk]))
-        self.client.post(url, {'descricao': registro.descricao})
+        self.client.post(url, {'descricao': registro.descricao, 'classe': self.classe.pk})
         registro.refresh_from_db()
         self.assertFalse(registro.revogada)
 
     def test_descricao_invalida_nao_salva_revogacao(self):
         self.enviar()
         registro = Resolucao.objects.get()
-        response = self.client.post(reverse('resolucoes:editar', args=[registro.pk]), {'descricao': ' ', 'revogada': 'on'})
+        response = self.client.post(reverse('resolucoes:editar', args=[registro.pk]), {'descricao': ' ', 'classe': self.classe.pk, 'revogada': 'on'})
         self.assertIn('descricao', response.context['form'].errors)
         registro.refresh_from_db()
         self.assertFalse(registro.revogada)
@@ -165,7 +167,7 @@ class ResolucoesTests(TestCase):
         self.client.force_login(admin)
         url = reverse('resolucoes:editar', args=[registro.pk])
         self.assertContains(self.client.get(reverse('resolucoes:index')), url)
-        self.assertEqual(self.client.post(url, {'descricao': 'Revisada', 'revogada': 'on'}).status_code, 302)
+        self.assertEqual(self.client.post(url, {'descricao': 'Revisada', 'classe': self.classe.pk, 'revogada': 'on'}).status_code, 302)
         registro.refresh_from_db()
         self.assertTrue(registro.revogada)
         self.assertEqual(registro.adicionado_por, self.user)
@@ -207,3 +209,94 @@ class ResolucoesTests(TestCase):
             self.assertEqual(self.client.post(url).status_code, 302)
             self.assertEqual(protegido.post(url, {'descricao': 'Mudança'}).status_code, 403)
         self.assertTrue(Resolucao.objects.filter(pk=registro.pk).exists())
+
+    def test_nova_classe_disponivel_para_todos_e_reutilizada(self):
+        self.assertRedirects(self.enviar(classe='nova', nova_classe='  Saúde   ocupacional  '), reverse('resolucoes:index'))
+        classe = ClasseResolucao.objects.get(chave='saude ocupacional')
+        self.assertEqual(classe.nome, 'Saúde ocupacional')
+        self.assertEqual(Resolucao.objects.get().classe, classe)
+        self.client.force_login(get_user_model().objects.create_user('outro'))
+        response = self.client.get(reverse('resolucoes:index'))
+        for form in [response.context['form'], response.context['filtro']]:
+            self.assertIn((str(classe.pk), classe.nome), list(form.fields['classe'].choices))
+        for nome in ['SAUDE OCUPACIONAL', 'saúde  ocupacional', 'Saude Ocupacional']:
+            self.assertEqual(self.enviar(classe='nova', nova_classe=nome).status_code, 302)
+        self.assertEqual(ClasseResolucao.objects.filter(chave='saude ocupacional').count(), 1)
+        self.assertEqual(Resolucao.objects.filter(classe=classe).count(), 4)
+
+    def test_servicos_de_alimentos_reaproveita_alimentos(self):
+        quantidade = ClasseResolucao.objects.count()
+        self.assertEqual(self.enviar(classe='nova', nova_classe=' SERVIÇOS de ALIMENTOS ').status_code, 302)
+        self.assertEqual(Resolucao.objects.get().classe, self.classe)
+        self.assertEqual(ClasseResolucao.objects.count(), quantidade)
+
+    def test_classe_obrigatoria_e_invalida_sem_gravar_classe_nem_resolucao(self):
+        quantidade = ClasseResolucao.objects.count()
+        for dados, campo in [
+            ({'classe': ''}, 'classe'),
+            ({'classe': '99999999999999999999999999'}, 'classe'),
+            ({'classe': 'nova', 'nova_classe': ' '}, 'nova_classe'),
+            ({'classe': 'nova', 'nova_classe': 'x' * 121}, 'nova_classe'),
+            ({'nova_classe': 'Nova categoria'}, 'nova_classe'),
+            ({'classe': 'nova', 'nova_classe': 'Nova categoria', 'conteudo': b'invalido'}, 'arquivo'),
+        ]:
+            with self.subTest(dados=dados):
+                response = self.enviar(**dados)
+                self.assertIn(campo, response.context['form'].errors)
+        self.assertEqual(ClasseResolucao.objects.count(), quantidade)
+        self.assertFalse(Resolucao.objects.exists())
+
+    def test_edicao_classifica_legado_e_preserva_arquivo(self):
+        self.enviar()
+        registro = Resolucao.objects.get()
+        Resolucao.objects.filter(pk=registro.pk).update(classe=None)
+        url = reverse('resolucoes:editar', args=[registro.pk])
+        response = self.client.post(url, {'descricao': registro.descricao, 'classe': 'nova', 'nova_classe': 'Saúde do trabalhador'})
+        self.assertRedirects(response, reverse('resolucoes:index'))
+        atualizado = Resolucao.objects.get(pk=registro.pk)
+        self.assertEqual(atualizado.classe.nome, 'Saúde do trabalhador')
+        self.assertEqual(atualizado.arquivo.name, registro.arquivo.name)
+        self.assertEqual(atualizado.adicionado_por, self.user)
+        self.assertEqual(self.client.get(url).context['form'].initial['classe'], str(atualizado.classe_id))
+
+    def test_filtros_combinados_classe_situacao_busca_e_legado(self):
+        saude = ClasseResolucao.objects.get(chave='servicos de saude')
+        self.enviar('Norma de alimentos')
+        alimentos = Resolucao.objects.get()
+        self.enviar('Norma sanitária', classe=saude.pk)
+        sanitaria = Resolucao.objects.exclude(pk=alimentos.pk).get()
+        Resolucao.objects.filter(pk=alimentos.pk).update(revogada=True)
+        self.enviar('Norma antiga')
+        legado = Resolucao.objects.get(descricao='Norma antiga')
+        Resolucao.objects.filter(pk=legado.pk).update(classe=None)
+        casos = [
+            ({'situacao': 'revogadas'}, [alimentos.pk]),
+            ({'situacao': 'nao_revogadas'}, [legado.pk, sanitaria.pk]),
+            ({'classe': saude.pk}, [sanitaria.pk]),
+            ({'classe': 'sem_classe'}, [legado.pk]),
+            ({'q': 'Norma', 'classe': self.classe.pk, 'situacao': 'revogadas'}, [alimentos.pk]),
+            ({'q': 'inexistente', 'classe': self.classe.pk, 'situacao': 'revogadas'}, []),
+            ({'classe': self.classe.pk, 'situacao': 'nao_revogadas'}, []),
+        ]
+        for filtros, ids in casos:
+            with self.subTest(filtros=filtros):
+                response = self.client.get(reverse('resolucoes:index'), filtros)
+                self.assertEqual([r.pk for r in response.context['pagina']], ids)
+        for filtros in [{'situacao': 'invalida'}, {'classe': '999999999999999999999999999'}]:
+            response = self.client.get(reverse('resolucoes:index'), filtros)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.context['filtro'].errors)
+            self.assertEqual(response.context['pagina'].paginator.count, 0)
+
+    def test_paginacao_preserva_todos_filtros_e_ids_html_distintos(self):
+        Resolucao.objects.bulk_create([
+            Resolucao(descricao=f'Norma {i}', arquivo=f'{i}.pdf', classe=self.classe, revogada=True,
+                      nome_original=f'{i}.pdf', tamanho=1, adicionado_por=self.user) for i in range(26)
+        ])
+        response = self.client.get(reverse('resolucoes:index'), {
+            'q': 'Norma', 'classe': self.classe.pk, 'situacao': 'revogadas', 'page': 2})
+        self.assertEqual(len(response.context['pagina']), 1)
+        self.assertContains(response, f'?q=Norma&amp;classe={self.classe.pk}&amp;situacao=revogadas&amp;page=1')
+        self.assertContains(response, 'id="id_classe"', count=1)
+        self.assertContains(response, 'id="filtro_classe"', count=1)
+        self.assertContains(response, 'id="filtro_situacao"', count=1)

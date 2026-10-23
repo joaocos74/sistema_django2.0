@@ -1,0 +1,11 @@
+<div class="resolucoes-classificacao" data-classificacao>
+    <div class="form-group">
+        <label for="{{ form.classe.id_for_label }}">Classe *</label>
+        {{ form.classe }}{{ form.classe.errors }}
+    </div>
+    <div class="form-group resolucoes-nova-classe" data-nova-classe>
+        <label for="{{ form.nova_classe.id_for_label }}">{{ form.nova_classe.label }}</label>
+        {{ form.nova_classe }}{{ form.nova_classe.errors }}
+        <p class="resolucoes-ajuda">Preencha somente ao selecionar “Cadastrar nova classe”. A classe ficará disponível para todos.</p>
+    </div>
+</div>

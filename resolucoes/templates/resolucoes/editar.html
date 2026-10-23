@@ -3,7 +3,7 @@
 {% block title %}Editar resolução — Vigilância Sanitária{% endblock %}
 {% block heading %}EDITAR RESOLUÇÃO{% endblock %}
 {% block actions %}<a href="{% url 'resolucoes:index' %}" class="btn btn-secundary">Voltar</a>{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'resolucoes/resolucoes.css' %}?v=2">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'resolucoes/resolucoes.css' %}?v=3"><script src="{% static 'resolucoes/classes.js' %}" defer></script>{% endblock %}
 {% block content %}
 <section class="card resolucoes-page">
     <header class="card__header"><h2><i class="fa-solid fa-pen" aria-hidden="true"></i> Editar resolução</h2></header>
@@ -11,6 +11,7 @@
         <form method="post" class="resolucoes-edicao">
             {% csrf_token %}{{ form.non_field_errors }}
             <div class="form-group"><label for="{{ form.descricao.id_for_label }}">Descrição *</label>{{ form.descricao }}{{ form.descricao.errors }}</div>
+            {% include 'resolucoes/partials/classe.html' %}
             <label class="resolucoes-checkbox" for="{{ form.revogada.id_for_label }}">{{ form.revogada }} <span>Marcar como revogada</span></label>{{ form.revogada.errors }}
             <p class="resolucoes-ajuda">As resoluções revogadas continuam disponíveis para consulta e aparecem destacadas em vermelho.</p>
             <div class="resolucoes-acoes"><button class="btn btn-primary" type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i> Salvar alterações</button><a class="btn btn-secundary" href="{% url 'resolucoes:index' %}">Cancelar</a></div>
