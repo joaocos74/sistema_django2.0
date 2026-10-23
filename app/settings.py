@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'redesim.apps.RedesimConfig',
     'denuncias.apps.DenunciasConfig',
     'arquivos.apps.ArquivosConfig',
+    'resolucoes.apps.ResolucoesConfig',
     'termos.apps.TermosConfig',
 ]
 
@@ -146,3 +147,6 @@ LOGOUT_REDIRECT_URL = 'usuarios:login'
 
 ARQUIVOS_ROOT = BASE_DIR / 'arquivos_privados'
 ARQUIVOS_MAX_BYTES = 25 * 1024 * 1024
+
+RESOLUCOES_ROOT = ARQUIVOS_ROOT / 'resolucoes'
+RESOLUCOES_MAX_BYTES = 25 * 1024 * 1024

@@ -1,0 +1,45 @@
+{% extends 'register/base.html' %}
+{% load static %}
+{% block title %}Resoluções — Vigilância Sanitária{% endblock %}
+{% block heading %}RESOLUÇÕES{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'resolucoes/resolucoes.css' %}">{% endblock %}
+{% block content %}
+<section class="card resolucoes-page" aria-labelledby="resolucoes-titulo">
+    <header class="card__header"><h2 id="resolucoes-titulo"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Resoluções para consulta</h2></header>
+    <div class="card__body">
+        <form method="post" enctype="multipart/form-data" class="resolucoes-upload">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}<div class="form-group resolucoes-campo--{{ field.name }}">
+                <label for="{{ field.id_for_label }}">{{ field.label }} *</label>
+                {{ field }}{{ field.errors }}
+            </div>{% endfor %}
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Adicionar</button>
+        </form>
+        <p class="resolucoes-ajuda">Adicione um PDF de até {{ limite|filesizeformat }}. Use Visualizar para abri-lo em uma nova aba.</p>
+        <form method="get" class="resolucoes-pesquisa" role="search">
+            <div class="form-group"><label for="pesquisa-resolucoes">Pesquisar resoluções</label>
+                <input type="search" class="form-control" id="pesquisa-resolucoes" name="q" value="{{ busca }}" placeholder="Busque pela descrição ou pelo nome do arquivo">
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Pesquisar</button>
+            {% if busca %}<a class="btn btn-secundary" href="{% url 'resolucoes:index' %}">Limpar</a>{% endif %}
+        </form>
+        <p class="resolucoes-resultado" role="status">{% if pagina.paginator.count == 1 %}1 resolução{% else %}{{ pagina.paginator.count }} resoluções{% endif %}{% if busca %} para “{{ busca }}”{% endif %}.</p>
+        <ul class="resolucoes-lista">
+            {% for item in pagina %}<li class="resolucoes-item">
+                <div class="resolucoes-identificacao">
+                    <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
+                    <div><h3>{{ item.descricao }}</h3><p>{{ item.nome_original }} · {{ item.tamanho|filesizeformat }}</p>
+                    <p>Adicionado por {{ item.adicionado_por.get_full_name|default:item.adicionado_por.username }} em {{ item.criado_em|date:'d/m/Y' }}.</p></div>
+                </div>
+                <a class="btn btn-primary resolucoes-visualizar" href="{% url 'resolucoes:visualizar' item.pk %}" target="_blank" rel="noopener" aria-label="Visualizar {{ item.descricao }} (nova aba)"><i class="fa-regular fa-eye" aria-hidden="true"></i> Visualizar</a>
+            </li>{% empty %}<li class="resolucoes-vazio"><i class="fa-regular fa-file-pdf" aria-hidden="true"></i><strong>Nenhuma resolução encontrada.</strong><span>{% if busca %}Tente outro termo ou limpe a pesquisa.{% else %}Adicione a primeira resolução usando o formulário acima.{% endif %}</span></li>{% endfor %}
+        </ul>
+        {% if pagina.has_other_pages %}<nav class="pagination" aria-label="Páginas de resoluções">
+            {% if pagina.has_previous %}<a href="?q={{ busca|urlencode }}&amp;page={{ pagina.previous_page_number }}">Anterior</a>{% endif %}
+            <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+            {% if pagina.has_next %}<a href="?q={{ busca|urlencode }}&amp;page={{ pagina.next_page_number }}">Próxima</a>{% endif %}
+        </nav>{% endif %}
+    </div>
+</section>
+{% endblock %}

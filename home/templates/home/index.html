@@ -31,6 +31,7 @@
 <a href="{% url 'register_view:estatisticas' %}" class="navbar-link"><span class="icon"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></span><span>ESTATÍSTICAS</span></a>
 <a href="{% url 'denuncias:index' %}" class="navbar-link"><span class="icon"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></span><span>DENÚNCIAS</span></a>
 <a href="{% url 'arquivos:index' %}" class="navbar-link"><span class="icon"><i class="fa-solid fa-folder-open" aria-hidden="true"></i></span><span>ARQUIVOS</span></a>
+{% url 'resolucoes:index' as resolucoes_url %}{% if resolucoes_url %}<a href="{{ resolucoes_url }}" class="navbar-link"><span class="icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></span><span>RESOLUÇÕES</span></a>{% endif %}
     </nav>
 </header>
 <main class="main-container">
