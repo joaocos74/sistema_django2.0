@@ -28,3 +28,12 @@ class ResolucaoForm(forms.ModelForm):
         if assinatura != b'%PDF-':
             raise forms.ValidationError('O arquivo enviado não possui a identificação de um PDF.')
         return arquivo
+
+
+class EditarResolucaoForm(forms.ModelForm):
+    class Meta:
+        model = Resolucao
+        fields = ['descricao', 'revogada']
+        widgets = {
+            'descricao': forms.TextInput(attrs={'class': 'form-control'}),
+        }

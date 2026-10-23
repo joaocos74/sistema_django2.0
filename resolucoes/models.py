@@ -15,6 +15,7 @@ def caminho_resolucao(instance, filename):
 
 class Resolucao(models.Model):
     descricao = models.CharField('Descrição', max_length=255)
+    revogada = models.BooleanField('Resolução revogada', default=False)
     arquivo = models.FileField('Arquivo PDF', upload_to=caminho_resolucao, storage=armazenamento_privado)
     nome_original = models.CharField(max_length=255, editable=False)
     tamanho = models.PositiveBigIntegerField(editable=False)

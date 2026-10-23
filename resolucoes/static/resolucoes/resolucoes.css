@@ -9,7 +9,20 @@
 .resolucoes-ajuda, .resolucoes-resultado { color: var(--muted-text); font-size: .85rem; }
 .resolucoes-pesquisa { display: flex; align-items: end; gap: 12px; padding: 18px 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); margin-top: 22px; }
 .resolucoes-pesquisa .form-group { flex: 1; }
-.resolucoes-page .btn { min-height: 40px; white-space: nowrap; }
+.resolucoes-page .btn { min-height: 40px; white-space: nowrap; gap: 8px; }
+.resolucoes-acoes { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.resolucoes-item > .resolucoes-acoes { flex-shrink: 0; }
+.resolucoes-item.resolucoes-item--revogada { background: #fff1f2; border-left: 3px solid #b42332; padding-left: 14px; padding-right: 14px; }
+.resolucoes-item--revogada .resolucoes-identificacao :is(h3, p, i) { color: #9b2335; }
+.resolucoes-revogada { display: inline-block; color: #9b2335; background: #ffe0e5; font-size: .8rem; font-weight: 600; padding: 3px 8px; border-radius: 12px; margin-bottom: 4px; }
+.resolucoes-page .resolucoes-perigo { background: #b42332; border-color: #b42332; color: white; }
+.resolucoes-page .resolucoes-perigo:hover { background: #8d1d29; border-color: #8d1d29; }
+.resolucoes-edicao { display: grid; gap: 18px; }
+.resolucoes-page .resolucoes-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.resolucoes-page input[type="checkbox"] { width: 18px; height: 18px; min-height: 0; margin: 0; accent-color: var(--primary-color); }
+.resolucoes-edicao .resolucoes-ajuda { margin: 0; }
+.resolucoes-arquivo-atual, .resolucoes-exclusao { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border-color); overflow-wrap: anywhere; }
+.resolucoes-arquivo-atual p, .resolucoes-exclusao p { font-size: .85rem; color: var(--muted-text); }
 .resolucoes-lista { list-style: none; padding: 0; margin: 0; }
 .resolucoes-item { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--border-color); }
 .resolucoes-item:last-child { border-bottom: 0; }
@@ -29,5 +42,5 @@
     .resolucoes-pesquisa { flex-wrap: wrap; }
     .resolucoes-pesquisa .form-group { flex-basis: 100%; }
     .resolucoes-item { flex-wrap: wrap; gap: 12px; }
-    .resolucoes-visualizar { margin-left: auto; }
+    .resolucoes-item > .resolucoes-acoes { margin-left: auto; flex-shrink: 1; }
 }

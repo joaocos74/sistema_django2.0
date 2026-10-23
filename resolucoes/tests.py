@@ -114,3 +114,96 @@ class ResolucoesTests(TestCase):
         })
         self.assertEqual(response.status_code, 403)
         self.assertFalse(Resolucao.objects.exists())
+
+    def test_editar_revogar_e_desmarcar_preserva_pdf_e_autor(self):
+        self.enviar()
+        registro = Resolucao.objects.get()
+        caminho = registro.arquivo.name
+        url = reverse('resolucoes:editar', args=[registro.pk])
+        self.assertContains(self.client.get(reverse('resolucoes:index')), url)
+        self.assertRedirects(self.client.post(url, {'descricao': 'Descrição corrigida', 'revogada': 'on'}), reverse('resolucoes:index'))
+        registro.refresh_from_db()
+        self.assertTrue(registro.revogada)
+        self.assertEqual(registro.descricao, 'Descrição corrigida')
+        self.assertEqual(registro.arquivo.name, caminho)
+        self.assertEqual(registro.adicionado_por, self.user)
+        response = self.client.get(reverse('resolucoes:index'))
+        self.assertContains(response, 'resolucoes-item--revogada')
+        self.assertContains(response, '>Revogada</span>')
+        self.assertContains(response, reverse('resolucoes:visualizar', args=[registro.pk]))
+        self.client.post(url, {'descricao': registro.descricao})
+        registro.refresh_from_db()
+        self.assertFalse(registro.revogada)
+
+    def test_descricao_invalida_nao_salva_revogacao(self):
+        self.enviar()
+        registro = Resolucao.objects.get()
+        response = self.client.post(reverse('resolucoes:editar', args=[registro.pk]), {'descricao': ' ', 'revogada': 'on'})
+        self.assertIn('descricao', response.context['form'].errors)
+        registro.refresh_from_db()
+        self.assertFalse(registro.revogada)
+        self.assertEqual(registro.descricao, 'RDC 216 — Boas práticas')
+
+    def test_outro_usuario_nao_edita_nem_exclui(self):
+        self.enviar()
+        registro = Resolucao.objects.get()
+        self.client.force_login(get_user_model().objects.create_user('outro'))
+        self.assertNotContains(self.client.get(reverse('resolucoes:index')), reverse('resolucoes:editar', args=[registro.pk]))
+        for acao in ['editar', 'excluir']:
+            url = reverse(f'resolucoes:{acao}', args=[registro.pk])
+            self.assertEqual(self.client.get(url).status_code, 403)
+            self.assertEqual(self.client.post(url, {'descricao': 'Mudança', 'revogada': 'on'}).status_code, 403)
+        registro.refresh_from_db()
+        self.assertFalse(registro.revogada)
+        self.assertEqual(registro.descricao, 'RDC 216 — Boas práticas')
+        self.assertTrue(registro.arquivo.storage.exists(registro.arquivo.name))
+
+    def test_administrador_pode_editar_resolucao_de_outro(self):
+        self.enviar()
+        registro = Resolucao.objects.get()
+        admin = get_user_model().objects.create_user('admin', is_superuser=True)
+        self.client.force_login(admin)
+        url = reverse('resolucoes:editar', args=[registro.pk])
+        self.assertContains(self.client.get(reverse('resolucoes:index')), url)
+        self.assertEqual(self.client.post(url, {'descricao': 'Revisada', 'revogada': 'on'}).status_code, 302)
+        registro.refresh_from_db()
+        self.assertTrue(registro.revogada)
+        self.assertEqual(registro.adicionado_por, self.user)
+
+    def test_exclusao_so_no_post_e_pdf_so_apos_commit(self):
+        self.enviar()
+        registro = Resolucao.objects.get()
+        arquivo = registro.arquivo
+        url = reverse('resolucoes:excluir', args=[registro.pk])
+        self.assertContains(self.client.get(url), 'Confirmar exclusão')
+        self.assertTrue(Resolucao.objects.filter(pk=registro.pk).exists())
+        with self.captureOnCommitCallbacks(execute=False) as callbacks:
+            self.assertRedirects(self.client.post(url), reverse('resolucoes:index'))
+        self.assertFalse(Resolucao.objects.exists())
+        self.assertTrue(arquivo.storage.exists(arquivo.name))
+        self.assertEqual(len(callbacks), 1)
+        callbacks[0]()
+        self.assertFalse(arquivo.storage.exists(arquivo.name))
+
+    def test_administrador_exclui_e_pdf_ausente_nao_impede_exclusao(self):
+        self.enviar()
+        registro = Resolucao.objects.get()
+        registro.arquivo.delete(save=False)
+        self.client.force_login(get_user_model().objects.create_user('admin', is_superuser=True))
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(reverse('resolucoes:excluir', args=[registro.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Resolucao.objects.exists())
+
+    def test_edicao_e_exclusao_exigem_login_e_csrf(self):
+        self.enviar()
+        registro = Resolucao.objects.get()
+        protegido = Client(enforce_csrf_checks=True)
+        protegido.force_login(self.user)
+        self.client.logout()
+        for acao in ['editar', 'excluir']:
+            url = reverse(f'resolucoes:{acao}', args=[registro.pk])
+            self.assertEqual(self.client.get(url).status_code, 302)
+            self.assertEqual(self.client.post(url).status_code, 302)
+            self.assertEqual(protegido.post(url, {'descricao': 'Mudança'}).status_code, 403)
+        self.assertTrue(Resolucao.objects.filter(pk=registro.pk).exists())

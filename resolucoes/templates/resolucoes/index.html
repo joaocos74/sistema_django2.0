@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Resoluções — Vigilância Sanitária{% endblock %}
 {% block heading %}RESOLUÇÕES{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'resolucoes/resolucoes.css' %}">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'resolucoes/resolucoes.css' %}?v=2">{% endblock %}
 {% block content %}
 <section class="card resolucoes-page" aria-labelledby="resolucoes-titulo">
     <header class="card__header"><h2 id="resolucoes-titulo"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Resoluções para consulta</h2></header>
@@ -26,13 +26,16 @@
         </form>
         <p class="resolucoes-resultado" role="status">{% if pagina.paginator.count == 1 %}1 resolução{% else %}{{ pagina.paginator.count }} resoluções{% endif %}{% if busca %} para “{{ busca }}”{% endif %}.</p>
         <ul class="resolucoes-lista">
-            {% for item in pagina %}<li class="resolucoes-item">
+            {% for item in pagina %}<li class="resolucoes-item{% if item.revogada %} resolucoes-item--revogada{% endif %}">
                 <div class="resolucoes-identificacao">
                     <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
-                    <div><h3>{{ item.descricao }}</h3><p>{{ item.nome_original }} · {{ item.tamanho|filesizeformat }}</p>
+                    <div><h3>{{ item.descricao }}</h3>{% if item.revogada %}<span class="resolucoes-revogada">Revogada</span>{% endif %}<p>{{ item.nome_original }} · {{ item.tamanho|filesizeformat }}</p>
                     <p>Adicionado por {{ item.adicionado_por.get_full_name|default:item.adicionado_por.username }} em {{ item.criado_em|date:'d/m/Y' }}.</p></div>
                 </div>
-                <a class="btn btn-primary resolucoes-visualizar" href="{% url 'resolucoes:visualizar' item.pk %}" target="_blank" rel="noopener" aria-label="Visualizar {{ item.descricao }} (nova aba)"><i class="fa-regular fa-eye" aria-hidden="true"></i> Visualizar</a>
+                <div class="resolucoes-acoes">
+                    <a class="btn btn-primary resolucoes-visualizar" href="{% url 'resolucoes:visualizar' item.pk %}" target="_blank" rel="noopener" aria-label="Visualizar {{ item.descricao }} (nova aba)"><i class="fa-regular fa-eye" aria-hidden="true"></i> Visualizar</a>
+                    {% if item.pode_editar %}<a class="btn btn-secundary" href="{% url 'resolucoes:editar' item.pk %}" aria-label="Editar {{ item.descricao }}"><i class="fa-solid fa-pen" aria-hidden="true"></i> Editar</a>{% endif %}
+                </div>
             </li>{% empty %}<li class="resolucoes-vazio"><i class="fa-regular fa-file-pdf" aria-hidden="true"></i><strong>Nenhuma resolução encontrada.</strong><span>{% if busca %}Tente outro termo ou limpe a pesquisa.{% else %}Adicione a primeira resolução usando o formulário acima.{% endif %}</span></li>{% endfor %}
         </ul>
         {% if pagina.has_other_pages %}<nav class="pagination" aria-label="Páginas de resoluções">

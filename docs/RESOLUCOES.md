@@ -10,11 +10,20 @@ nova aba e responde com `application/pdf` e `Content-Disposition: inline`, sem
 forçar download. O navegador precisa estar configurado para abrir PDFs; suas
 preferências podem optar por baixá-los. Não há bloqueio de cópia ou impressão.
 
+O autor ou superusuário pode acessar Editar para corrigir a descrição e marcar
+ou desmarcar a opção Revogada. Documentos revogados continuam consultáveis,
+com fundo/textos vermelhos e identificação textual de situação. Nenhuma
+revogação é presumida: o usuário responsável informa a situação.
+
+Excluir resolução fica dentro da edição e abre uma confirmação. A exclusão
+ocorre somente por POST autenticado com CSRF e autorização do autor ou
+superusuário. O PDF é removido depois do commit da exclusão no banco.
+
 O envio aceita arquivos de até 25 MiB com extensão `.pdf` e identificação `%PDF-`.
 Essa conferência de formato não é um antivírus nem uma validação integral do PDF.
 O autor vem da sessão e os arquivos recebem nomes UUID para evitar sobrescrita.
 
-- Tabela: `resolucoes_resolucao` (descrição, arquivo, nome original, tamanho,
+- Tabela: `resolucoes_resolucao` (descrição, revogada, arquivo, nome original, tamanho,
   autor e data de inclusão).
 - Relação: `adicionado_por_id` → `auth_user.id`, com `PROTECT` no Django.
 - PDFs: `arquivos_privados/resolucoes/`, já abrangidos pelo backup de

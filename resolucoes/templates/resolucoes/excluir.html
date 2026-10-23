@@ -1,0 +1,16 @@
+{% extends 'register/base.html' %}
+{% load static %}
+{% block title %}Excluir resolução — Vigilância Sanitária{% endblock %}
+{% block heading %}EXCLUIR RESOLUÇÃO{% endblock %}
+{% block actions %}<a href="{% url 'resolucoes:editar' registro.pk %}" class="btn btn-secundary">Voltar</a>{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'resolucoes/resolucoes.css' %}?v=2">{% endblock %}
+{% block content %}
+<section class="card resolucoes-page">
+    <header class="card__header"><h2>Confirmar exclusão</h2></header>
+    <div class="card__body">
+        <p>Excluir <strong>{{ registro.descricao }}</strong>?</p>
+        <p class="resolucoes-ajuda">O cadastro e o arquivo {{ registro.nome_original }} serão removidos. Se quiser manter o documento para consulta, cancele e marque a resolução como revogada.</p>
+        <form method="post" class="resolucoes-acoes">{% csrf_token %}<button type="submit" class="btn resolucoes-perigo"><i class="fa-regular fa-trash-can" aria-hidden="true"></i> Excluir definitivamente</button><a class="btn btn-secundary" href="{% url 'resolucoes:editar' registro.pk %}">Cancelar</a></form>
+    </div>
+</section>
+{% endblock %}
